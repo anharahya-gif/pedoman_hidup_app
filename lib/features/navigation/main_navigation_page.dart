@@ -11,75 +11,184 @@ class MainNavigationPage extends ConsumerWidget {
   const MainNavigationPage({super.key});
 
   final List<Widget> _pages = const [
-    DashboardPage(),
-    HomePage(),
-    IbadahHubPage(),
-    PrayerCollectionPage(),
-    SettingsPage(),
+    HomePage(),             // Index 0: Al-Quran (paling kiri)
+    IbadahHubPage(),        // Index 1: Ibadah (tengah kiri)
+    DashboardPage(),        // Index 2: Beranda (tengah - FAB)
+    PrayerCollectionPage(), // Index 3: Doa (tengah kanan)
+    SettingsPage(),         // Index 4: Pengaturan (paling kanan)
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(bottomNavIndexProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
+    const primaryEmerald = Color(0xff0b3b24);
     const accentGold = Color(0xffd4af37);
+    final navBgColor = isDark ? const Color(0xff121814) : Colors.white;
+    final navBorderColor = isDark ? const Color(0xff1b241e) : const Color(0xffe5e5e0);
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xff070c09) : const Color(0xfff3f6f4),
       body: IndexedStack(
         index: currentIndex,
         children: _pages,
       ),
+      extendBody: true, // Allows Scaffold body to flow under the notched bar
+      floatingActionButton: Container(
+        height: 64,
+        width: 64,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            ref.read(bottomNavIndexProvider.notifier).state = 2; // Beranda (Tengah)
+          },
+          backgroundColor: currentIndex == 2 ? primaryEmerald : (isDark ? const Color(0xff1a221c) : Colors.white),
+          elevation: 0,
+          shape: CircleBorder(
+            side: BorderSide(
+              color: currentIndex == 2 ? accentGold : navBorderColor,
+              width: 2,
+            ),
+          ),
+          child: Icon(
+            Icons.home_rounded,
+            size: 28,
+            color: currentIndex == 2 ? accentGold : primaryEmerald,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, -2),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: currentIndex,
-          onTap: (index) {
+        child: BottomAppBar(
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8,
+          clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.zero,
+          height: 68,
+          color: navBgColor,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Tab 0: Al-Quran (Paling Kiri)
+              _buildTabItem(
+                ref: ref,
+                index: 0,
+                currentIndex: currentIndex,
+                icon: Icons.menu_book_rounded,
+                label: 'Al-Quran',
+                isDark: isDark,
+                accentGold: accentGold,
+              ),
+              // Tab 1: Ibadah (Tengah Kiri)
+              _buildTabItem(
+                ref: ref,
+                index: 1,
+                currentIndex: currentIndex,
+                icon: Icons.explore_rounded, // Compass/mosque style
+                label: 'Ibadah',
+                isDark: isDark,
+                accentGold: accentGold,
+              ),
+              // Spacer for Center Notched FAB
+              const SizedBox(width: 48),
+              // Tab 3: Doa (Tengah Kanan)
+              _buildTabItem(
+                ref: ref,
+                index: 3,
+                currentIndex: currentIndex,
+                icon: Icons.auto_stories_rounded,
+                label: 'Doa',
+                isDark: isDark,
+                accentGold: accentGold,
+              ),
+              // Tab 4: Pengaturan (Paling Kanan)
+              _buildTabItem(
+                ref: ref,
+                index: 4,
+                currentIndex: currentIndex,
+                icon: Icons.settings_rounded,
+                label: 'Pengaturan',
+                isDark: isDark,
+                accentGold: accentGold,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabItem({
+    required WidgetRef ref,
+    required int index,
+    required int currentIndex,
+    required IconData icon,
+    required String label,
+    required bool isDark,
+    required Color accentGold,
+  }) {
+    final isSelected = index == currentIndex;
+    final inactiveColor = isDark ? Colors.white38 : Colors.black38;
+
+    return Expanded(
+      child: Tooltip(
+        message: label,
+        child: InkWell(
+          onTap: () {
             ref.read(bottomNavIndexProvider.notifier).state = index;
           },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: isDark ? const Color(0xff0b100d) : Colors.white,
-          selectedItemColor: accentGold,
-          unselectedItemColor: isDark ? Colors.white30 : Colors.black26,
-          selectedFontSize: 11,
-          unselectedFontSize: 11,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              activeIcon: Icon(Icons.home_rounded, color: accentGold),
-              label: 'Beranda',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_rounded),
-              activeIcon: Icon(Icons.menu_book_rounded, color: accentGold),
-              label: 'Al-Quran',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.mosque_rounded),
-              activeIcon: Icon(Icons.mosque_rounded, color: accentGold),
-              label: 'Ibadah',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.auto_stories_rounded),
-              activeIcon: Icon(Icons.auto_stories_rounded, color: accentGold),
-              label: 'Doa',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_rounded),
-              activeIcon: Icon(Icons.settings_rounded, color: accentGold),
-              label: 'Pengaturan',
-            ),
-          ],
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: isSelected ? accentGold.withValues(alpha: 0.1) : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? accentGold : inactiveColor,
+                  size: 25,
+                ),
+              ),
+              const SizedBox(height: 2),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: isSelected ? 5 : 0,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: accentGold,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

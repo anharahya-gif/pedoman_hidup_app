@@ -326,7 +326,7 @@ class DashboardPage extends ConsumerWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Switch to Quran tab
-                        ref.read(bottomNavIndexProvider.notifier).state = 1;
+                        ref.read(bottomNavIndexProvider.notifier).state = 0;
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -435,7 +435,7 @@ class DashboardPage extends ConsumerWidget {
               ),
               onPressed: () {
                 // Switch to Ibadah Hub tab
-                ref.read(bottomNavIndexProvider.notifier).state = 2;
+                ref.read(bottomNavIndexProvider.notifier).state = 1;
               },
             ),
           ),
@@ -530,7 +530,7 @@ class DashboardPage extends ConsumerWidget {
           icon: Icons.menu_book_rounded,
           color: Colors.green,
           onTap: () {
-            ref.read(bottomNavIndexProvider.notifier).state = 1;
+            ref.read(bottomNavIndexProvider.notifier).state = 0;
           },
         ),
         const SizedBox(height: 12),
@@ -540,7 +540,7 @@ class DashboardPage extends ConsumerWidget {
           icon: Icons.mosque_rounded,
           color: const Color(0xffd4af37),
           onTap: () {
-            ref.read(bottomNavIndexProvider.notifier).state = 2;
+            ref.read(bottomNavIndexProvider.notifier).state = 1;
           },
         ),
         const SizedBox(height: 12),

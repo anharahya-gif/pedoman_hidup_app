@@ -10,5 +10,5 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
   return DatabaseHelper.instance;
 });
 
-final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
+final bottomNavIndexProvider = StateProvider<int>((ref) => 2);
 
