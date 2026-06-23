@@ -9,6 +9,9 @@ import '../../../quran/presentation/providers/quran_providers.dart';
 import '../../../quran/presentation/pages/surah_detail_page.dart';
 import '../../../ibadah/presentation/controllers/ibadah_controller.dart';
 import '../../../ibadah/presentation/pages/prayers_after_shalat_page.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../ayah/presentation/widgets/ayah_of_the_day_card.dart';
+import '../../../ibadah/domain/entities/ibadah_log.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -26,6 +29,100 @@ class DashboardPage extends ConsumerWidget {
     }
   }
 
+  int _calculateWorshipStreak(List<IbadahLog> logs) {
+    if (logs.isEmpty) return 0;
+
+    final sortedLogs = List<IbadahLog>.from(logs);
+    sortedLogs.sort((a, b) => b.date.compareTo(a.date));
+
+    bool hasWorship(IbadahLog log) {
+      bool hasShalat = log.subuh != 'belum' ||
+          log.dzuhur != 'belum' ||
+          log.ashar != 'belum' ||
+          log.maghrib != 'belum' ||
+          log.isya != 'belum';
+      bool hasOther = log.quranPages > 0 ||
+          log.dhikrCount > 0 ||
+          log.duha == 1 ||
+          log.tahajjud == 1 ||
+          log.sedekah == 1;
+      return hasShalat || hasOther;
+    }
+
+    int streak = 0;
+    DateTime checkDate = DateTime.now();
+
+    String formatDate(DateTime dt) {
+      return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}";
+    }
+
+    final todayStr = formatDate(checkDate);
+    final yesterdayStr = formatDate(checkDate.subtract(const Duration(days: 1)));
+
+    final hasToday = sortedLogs.any((l) => l.date == todayStr && hasWorship(l));
+    final hasYesterday = sortedLogs.any((l) => l.date == yesterdayStr && hasWorship(l));
+
+    if (!hasToday && !hasYesterday) {
+      return 0;
+    }
+
+    DateTime current = hasToday ? checkDate : checkDate.subtract(const Duration(days: 1));
+    while (true) {
+      final curStr = formatDate(current);
+      final index = sortedLogs.indexWhere((l) => l.date == curStr);
+      if (index != -1 && hasWorship(sortedLogs[index])) {
+        streak++;
+        current = current.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  Widget _buildPrayerDot(String label, String status, Color primaryEmerald, Color accentGold, Color textSecondary) {
+    final isDone = status == 'berjamaah' || status == 'munfarid';
+    final isMissed = status == 'terlewat';
+    final isQadha = status == 'qadha';
+
+    Color dotColor;
+    IconData icon;
+    if (isDone) {
+      dotColor = accentGold;
+      icon = Icons.check_circle_rounded;
+    } else if (isMissed) {
+      dotColor = Colors.redAccent;
+      icon = Icons.cancel_rounded;
+    } else if (isQadha) {
+      dotColor = Colors.orangeAccent;
+      icon = Icons.history_rounded;
+    } else {
+      dotColor = Colors.grey.withValues(alpha: 0.3);
+      icon = Icons.circle_outlined;
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Icon(
+          icon,
+          color: dotColor,
+          size: 20,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -41,6 +138,11 @@ class DashboardPage extends ConsumerWidget {
       if (log.maghrib == 'berjamaah' || log.maghrib == 'munfarid') shalatSelesai++;
       if (log.isya == 'berjamaah' || log.isya == 'munfarid') shalatSelesai++;
     }
+
+    final userAsync = ref.watch(authStateProvider);
+    final user = userAsync.valueOrNull;
+    final displayName = user?.displayName ?? 'Hamba Allah';
+    final photoUrl = user?.photoURL;
 
     const primaryEmerald = Color(0xff0b3b24);
     const accentGold = Color(0xffd4af37);
@@ -81,7 +183,15 @@ class DashboardPage extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Assalamu\'alaikum',
+                            'Assalamu\'alaikum,',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: textSecondary,
+                            ),
+                          ),
+                          Text(
+                            displayName,
                             style: GoogleFonts.outfit(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -90,15 +200,31 @@ class DashboardPage extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
-                          color: accentGold,
+                      GestureDetector(
+                        onTap: () {
+                          // Switch to Settings tab
+                          ref.read(bottomNavIndexProvider.notifier).state = 4;
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: accentGold.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+                            backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                            child: photoUrl == null
+                                ? const Icon(
+                                    Icons.person_outline_rounded,
+                                    color: accentGold,
+                                    size: 20,
+                                  )
+                                : null,
+                          ),
                         ),
                       )
                     ],
@@ -113,12 +239,27 @@ class DashboardPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // 2. Terakhir Dibaca Banner
+                  // 2. Ayat Hari Ini (Ayah of the Day) Card
+                  const AyahOfTheDayCard(),
+                  const SizedBox(height: 24),
+
+                  // 3. Terakhir Dibaca Banner
                   _buildLastReadCard(context, ref, lastRead, isDark, primaryEmerald, accentGold),
                   const SizedBox(height: 24),
 
-                  // 3. Ringkasan Ibadah Card
-                  _buildIbadahSummaryCard(ref, shalatSelesai, glassColor, textPrimary, textSecondary, accentGold, primaryEmerald),
+                  // 4. Ringkasan Ibadah Card
+                  _buildIbadahSummaryCard(
+                    context,
+                    ref,
+                    ibadahState.ibadahLog,
+                    ibadahState.allLogs,
+                    shalatSelesai,
+                    glassColor,
+                    textPrimary,
+                    textSecondary,
+                    accentGold,
+                    primaryEmerald,
+                  ),
                   const SizedBox(height: 28),
 
                   // 4. Quick Actions
@@ -329,7 +470,10 @@ class DashboardPage extends ConsumerWidget {
   }
 
   Widget _buildIbadahSummaryCard(
+    BuildContext context,
     WidgetRef ref,
+    IbadahLog? log,
+    List<IbadahLog> allLogs,
     int selesaiCount,
     Color glassColor,
     Color textPrimary,
@@ -338,6 +482,19 @@ class DashboardPage extends ConsumerWidget {
     Color primaryEmerald,
   ) {
     final progress = selesaiCount / 5;
+    final streak = _calculateWorshipStreak(allLogs);
+
+    String getMotivationalText() {
+      if (selesaiCount == 0) {
+        return 'Mari awali hari dengan Shalat Subuh tepat waktu. Semangat menjaga ibadah!';
+      } else if (selesaiCount >= 1 && selesaiCount <= 2) {
+        return 'Bagus! Jaga shalat fardhu berikutnya. Setiap sujud mendekatkanmu kepada-Nya.';
+      } else if (selesaiCount >= 3 && selesaiCount <= 4) {
+        return 'Hebat! Tinggal sedikit lagi lengkap. Semangat menuntaskan shalat fardhu hari ini!';
+      } else {
+        return 'Alhamdulillah! Seluruh shalat fardhu hari ini lengkap. Semoga istiqomah dan berkah!';
+      }
+    }
 
     return Container(
       width: double.infinity,
@@ -364,13 +521,37 @@ class DashboardPage extends ConsumerWidget {
                 child: Icon(Icons.mosque_rounded, color: primaryEmerald, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(
-                'Shalat Hari Ini',
-                style: GoogleFonts.outfit(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: textPrimary,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Shalat Hari Ini',
+                    style: GoogleFonts.outfit(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                    ),
+                  ),
+                  if (streak > 0) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Text(
+                          '🔥 ',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                        Text(
+                          '$streak Hari Istiqomah',
+                          style: GoogleFonts.outfit(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: accentGold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
               const Spacer(),
               Text(
@@ -394,6 +575,49 @@ class DashboardPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildPrayerDot('Subuh', log?.subuh ?? 'belum', primaryEmerald, accentGold, textSecondary),
+              _buildPrayerDot('Dzuhur', log?.dzuhur ?? 'belum', primaryEmerald, accentGold, textSecondary),
+              _buildPrayerDot('Ashar', log?.ashar ?? 'belum', primaryEmerald, accentGold, textSecondary),
+              _buildPrayerDot('Maghrib', log?.maghrib ?? 'belum', primaryEmerald, accentGold, textSecondary),
+              _buildPrayerDot('Isya', log?.isya ?? 'belum', primaryEmerald, accentGold, textSecondary),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark(ref) ? Colors.white.withValues(alpha: 0.03) : primaryEmerald.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark(ref) ? Colors.white.withValues(alpha: 0.05) : primaryEmerald.withValues(alpha: 0.05),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.lightbulb_outline_rounded,
+                  color: accentGold,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    getMotivationalText(),
+                    style: GoogleFonts.outfit(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
