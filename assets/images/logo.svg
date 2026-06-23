@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Radial Gradient for the Glowing Stroke: Bright White/Gold in center, fading to dark warm gold at the edges -->
+    <radialGradient id="goldGlowRadial" cx="0" cy="0" r="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1.0" />
+      <stop offset="15%" stop-color="#FFF5C0" stop-opacity="0.95" />
+      <stop offset="45%" stop-color="#E5C04A" stop-opacity="0.80" />
+      <stop offset="75%" stop-color="#D4AF37" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#9E7810" stop-opacity="0.10" />
+    </radialGradient>
+
+    <!-- Radial Gradient for background aura behind the star pattern -->
+    <radialGradient id="bgGlowRadial" cx="0" cy="0" r="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFEFA6" stop-opacity="0.28" />
+      <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Clip to squircle shape -->
+    <clipPath id="squircleClip">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112" />
+    </clipPath>
+  </defs>
+
+  <!-- ── Background: Rich Matte Emerald Green ── -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#0A4128" />
+
+  <g clip-path="url(#squircleClip)">
+    <!-- Group for the geometric patterns centered at (256, 256) -->
+    <g transform="translate(256, 256)">
+      
+      <!-- ── Background Ambient Glow ── -->
+      <circle cx="0" cy="0" r="200" fill="url(#bgGlowRadial)" />
+
+      <!-- ── Outer/Large Rotating Squares (size 340x340) ── -->
+      <g fill="none" stroke="url(#goldGlowRadial)" stroke-width="4.5">
+        <!-- Square 1: 0 degrees -->
+        <rect x="-170" y="-170" width="340" height="340" rx="4" ry="4" />
+        <!-- Square 2: 22.5 degrees -->
+        <rect x="-170" y="-170" width="340" height="340" rx="4" ry="4" transform="rotate(22.5)" />
+        <!-- Square 3: 45 degrees -->
+        <rect x="-170" y="-170" width="340" height="340" rx="4" ry="4" transform="rotate(45)" />
+        <!-- Square 4: 67.5 degrees -->
+        <rect x="-170" y="-170" width="340" height="340" rx="4" ry="4" transform="rotate(67.5)" />
+      </g>
+
+      <!-- ── Medium/Inner Rotating Squares (size 260x260) ── -->
+      <g fill="none" stroke="url(#goldGlowRadial)" stroke-width="3.2">
+        <rect x="-130" y="-130" width="260" height="260" rx="3" ry="3" />
+        <rect x="-130" y="-130" width="260" height="260" rx="3" ry="3" transform="rotate(22.5)" />
+        <rect x="-130" y="-130" width="260" height="260" rx="3" ry="3" transform="rotate(45)" />
+        <rect x="-130" y="-130" width="260" height="260" rx="3" ry="3" transform="rotate(67.5)" />
+      </g>
+
+      <!-- ── Small Concentric Rotating Squares (size 180x180) ── -->
+      <g fill="none" stroke="url(#goldGlowRadial)" stroke-width="2.2">
+        <rect x="-90" y="-90" width="180" height="180" rx="2" ry="2" />
+        <rect x="-90" y="-90" width="180" height="180" rx="2" ry="2" transform="rotate(22.5)" />
+        <rect x="-90" y="-90" width="180" height="180" rx="2" ry="2" transform="rotate(45)" />
+        <rect x="-90" y="-90" width="180" height="180" rx="2" ry="2" transform="rotate(67.5)" />
+      </g>
+
+      <!-- ── Central Circles ── -->
+      <!-- Large intersecting circle -->
+      <circle cx="0" cy="0" r="140" fill="none" stroke="url(#goldGlowRadial)" stroke-width="3.5" />
+      
+      <!-- Primary bold core circle (glowing strongly) -->
+      <circle cx="0" cy="0" r="105" fill="none" stroke="url(#goldGlowRadial)" stroke-width="6.0" />
+
+      <!-- Very subtle inner accent ring -->
+      <circle cx="0" cy="0" r="97" fill="none" stroke="url(#goldGlowRadial)" stroke-width="1.5" />
+
+      <!-- Soft glowing center dot to tie the bloom effect together -->
+      <circle cx="0" cy="0" r="8" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="0" cy="0" r="22" fill="#FFEFA6" opacity="0.18" />
+    </g>
+  </g>
+</svg>
