@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -106,53 +107,58 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
           ),
         ],
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeaderBanner(context),
-                  const SizedBox(height: 20),
-                  _buildLastReadCard(context),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverTabDelegate(
-              TabBar(
-                controller: _tabController,
-                indicatorColor: AppColors.accent,
-                indicatorWeight: 3,
-                labelColor: AppColors.accent,
-                unselectedLabelColor: isDark ? AppColors.textDarkSecondary : AppColors.textLightSecondary,
-                labelStyle: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  letterSpacing: 0.5,
+      body: Stack(
+        children: [
+          const AmbientLights(),
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeaderBanner(context),
+                      const SizedBox(height: 20),
+                      _buildLastReadCard(context),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
-                tabs: const [
-                  Tab(text: 'Surah'),
-                  Tab(text: 'Belajar'),
-                  Tab(text: 'Bookmark'),
-                ],
               ),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverTabDelegate(
+                  TabBar(
+                    controller: _tabController,
+                    indicatorColor: AppColors.accent,
+                    indicatorWeight: 3,
+                    labelColor: AppColors.accent,
+                    unselectedLabelColor: isDark ? AppColors.textDarkSecondary : AppColors.textLightSecondary,
+                    labelStyle: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 0.5,
+                    ),
+                    tabs: const [
+                      Tab(text: 'Surah'),
+                      Tab(text: 'Belajar'),
+                      Tab(text: 'Bookmark'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildSurahTab(context),
+                const LearningTab(),
+                _buildBookmarkTab(context),
+              ],
             ),
           ),
         ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildSurahTab(context),
-            const LearningTab(),
-            _buildBookmarkTab(context),
-          ],
-        ),
       ),
     );
   }

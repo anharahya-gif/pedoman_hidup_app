@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/providers.dart';
 import '../../../quran/presentation/providers/quran_providers.dart';
@@ -27,10 +28,19 @@ class DashboardPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lastRead = ref.watch(lastReadProvider);
+
     final ibadahState = ref.watch(ibadahControllerProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    int shalatSelesai = 0;
+    if (ibadahState.ibadahLog != null) {
+      final log = ibadahState.ibadahLog!;
+      if (log.subuh == 'berjamaah' || log.subuh == 'munfarid') shalatSelesai++;
+      if (log.dzuhur == 'berjamaah' || log.dzuhur == 'munfarid') shalatSelesai++;
+      if (log.ashar == 'berjamaah' || log.ashar == 'munfarid') shalatSelesai++;
+      if (log.maghrib == 'berjamaah' || log.maghrib == 'munfarid') shalatSelesai++;
+      if (log.isya == 'berjamaah' || log.isya == 'munfarid') shalatSelesai++;
+    }
 
     const primaryEmerald = Color(0xff0b3b24);
     const accentGold = Color(0xffd4af37);
@@ -42,23 +52,12 @@ class DashboardPage extends ConsumerWidget {
     final textPrimary = isDark ? Colors.white : Colors.black87;
     final textSecondary = isDark ? Colors.white60 : Colors.black54;
 
-    // Hitung shalat selesai hari ini
-    int shalatSelesai = 0;
-    if (ibadahState.ibadahLog != null) {
-      final log = ibadahState.ibadahLog!;
-      if (log.subuh == 'berjamaah' || log.subuh == 'munfarid') shalatSelesai++;
-      if (log.dzuhur == 'berjamaah' || log.dzuhur == 'munfarid') shalatSelesai++;
-      if (log.ashar == 'berjamaah' || log.ashar == 'munfarid') shalatSelesai++;
-      if (log.maghrib == 'berjamaah' || log.maghrib == 'munfarid') shalatSelesai++;
-      if (log.isya == 'berjamaah' || log.isya == 'munfarid') shalatSelesai++;
-    }
-
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
         child: Stack(
           children: [
-            _buildAmbientLights(isDark),
+            const AmbientLights(),
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -132,32 +131,6 @@ class DashboardPage extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAmbientLights(bool isDark) {
-    if (!isDark) return const SizedBox.shrink();
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            left: -150,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x1a0b3b24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

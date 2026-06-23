@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/datasources/learning_local_datasource.dart';
 
@@ -71,11 +72,16 @@ class _QuizPageState extends State<QuizPage> {
         ),
       ),
       body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: _quizFinished
-              ? _buildScorecard(isDark)
-              : _buildQuestionScreen(isDark),
+        child: Stack(
+          children: [
+            const AmbientLights(),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _quizFinished
+                  ? _buildScorecard(isDark)
+                  : _buildQuestionScreen(isDark),
+            ),
+          ],
         ),
       ),
     );

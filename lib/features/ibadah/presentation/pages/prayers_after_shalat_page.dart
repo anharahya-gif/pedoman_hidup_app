@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../data/constants/prayers_after_shalat.dart';
 import '../controllers/doa_controller.dart';
 
@@ -63,7 +63,7 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
       body: SafeArea(
         child: Stack(
           children: [
-            _buildAmbientLights(isDark),
+            const AmbientLights(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               child: state.isDhikrCompleted
@@ -273,32 +273,6 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAmbientLights(bool isDark) {
-    if (!isDark) return const SizedBox.shrink();
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            left: -150,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x1a0b3b24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

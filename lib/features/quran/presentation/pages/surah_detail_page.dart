@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart'; // sharing helper
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/audio_player_helper.dart';
@@ -113,109 +114,114 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
           ),
         ],
       ),
-      body: detailAsyncValue.when(
-        data: (verses) {
-          for (var verse in verses) {
-            _verseKeys[verse.nomorAyat] = _verseKeys[verse.nomorAyat] ?? GlobalKey();
-          }
+      body: Stack(
+        children: [
+          const AmbientLights(),
+          detailAsyncValue.when(
+            data: (verses) {
+              for (var verse in verses) {
+                _verseKeys[verse.nomorAyat] = _verseKeys[verse.nomorAyat] ?? GlobalKey();
+              }
 
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.separated(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  itemCount: verses.length + 1,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return _buildSurahHeaderBanner(context, verses.length);
-                    }
-                    
-                    final verse = verses[index - 1];
-                    final isPlaying = _currentPlayingUrl == verse.preferredAudio && _isAudioPlaying;
-                    final isHighlighted = isPlaying || (widget.highlightVerseNumber == verse.nomorAyat);
-                    
-                    final bookmarks = ref.watch(bookmarkProvider);
-                    final isBookmarked = bookmarks.any((b) =>
-                        b['surah_number'] == widget.surahNumber && b['verse_number'] == verse.nomorAyat);
-                    
-                    return VerseCard(
-                      key: _verseKeys[verse.nomorAyat],
-                      verse: verse,
-                      surahNumber: widget.surahNumber,
-                      surahName: widget.surahName,
-                      isHighlighted: isHighlighted,
-                      isPlaying: isPlaying,
-                      isBookmarked: isBookmarked,
-                      onPlayPressed: () {
-                        _audioHelper.play(verse.preferredAudio);
-                      },
-                      onBookmarkPressed: () {
-                        ref.read(bookmarkProvider.notifier).toggleBookmark(
-                              surahNumber: widget.surahNumber,
-                              surahName: widget.surahName,
-                              verseNumber: verse.nomorAyat,
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.separated(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      itemCount: verses.length + 1,
+                      separatorBuilder: (context, index) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return _buildSurahHeaderBanner(context, verses.length);
+                        }
+                        
+                        final verse = verses[index - 1];
+                        final isPlaying = _currentPlayingUrl == verse.preferredAudio && _isAudioPlaying;
+                        final isHighlighted = isPlaying || (widget.highlightVerseNumber == verse.nomorAyat);
+                        
+                        final bookmarks = ref.watch(bookmarkProvider);
+                        final isBookmarked = bookmarks.any((b) =>
+                            b['surah_number'] == widget.surahNumber && b['verse_number'] == verse.nomorAyat);
+                        
+                        return VerseCard(
+                          key: _verseKeys[verse.nomorAyat],
+                          verse: verse,
+                          surahNumber: widget.surahNumber,
+                          surahName: widget.surahName,
+                          isHighlighted: isHighlighted,
+                          isPlaying: isPlaying,
+                          isBookmarked: isBookmarked,
+                          onPlayPressed: () {
+                            _audioHelper.play(verse.preferredAudio);
+                          },
+                          onBookmarkPressed: () {
+                            ref.read(bookmarkProvider.notifier).toggleBookmark(
+                                  surahNumber: widget.surahNumber,
+                                  surahName: widget.surahName,
+                                  verseNumber: verse.nomorAyat,
+                                );
+                          },
+                          onSharePressed: () {
+                            Share.share(
+                              '${verse.teksArab}\n\n${verse.teksLatin}\n\nArtinya: "${verse.teksIndonesia}"\n\n(QS. ${widget.surahName}: ${verse.nomorAyat})',
                             );
-                      },
-                      onSharePressed: () {
-                        Share.share(
-                          '${verse.teksArab}\n\n${verse.teksLatin}\n\nArtinya: "${verse.teksIndonesia}"\n\n(QS. ${widget.surahName}: ${verse.nomorAyat})',
+                          },
+                          onLastReadPressed: () {
+                            ref.read(lastReadProvider.notifier).saveLastRead(
+                                  surahNumber: widget.surahNumber,
+                                  surahName: widget.surahName,
+                                  verseNumber: verse.nomorAyat,
+                                  verseTextLatin: verse.teksLatin,
+                                );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Ditandai sebagai terakhir dibaca'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          },
                         );
                       },
-                      onLastReadPressed: () {
-                        ref.read(lastReadProvider.notifier).saveLastRead(
-                              surahNumber: widget.surahNumber,
-                              surahName: widget.surahName,
-                              verseNumber: verse.nomorAyat,
-                              verseTextLatin: verse.teksLatin,
-                            );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Ditandai sebagai terakhir dibaca'),
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-        loading: () => _buildShimmerLoading(),
-        error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
-                const SizedBox(height: 16),
-                Text(
-                  err.toString(),
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ref.invalidate(surahDetailProvider(widget.surahNumber));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Coba Lagi'),
+                ],
+              );
+            },
+            loading: () => _buildShimmerLoading(),
+            error: (err, stack) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
+                    const SizedBox(height: 16),
+                    Text(
+                      err.toString(),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(surahDetailProvider(widget.surahNumber));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Coba Lagi'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/constants/curated_prayers.dart';
 import '../../domain/entities/prayer_item.dart';
@@ -80,7 +80,7 @@ class PrayerCollectionPage extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            _buildAmbientLights(isDark),
+            const AmbientLights(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -128,32 +128,6 @@ class PrayerCollectionPage extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAmbientLights(bool isDark) {
-    if (!isDark) return const SizedBox.shrink();
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            left: -150,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x150b3b24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

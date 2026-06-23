@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/ibadah_log.dart';
@@ -203,7 +203,7 @@ class _IbadahHubPageState extends ConsumerState<IbadahHubPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            _buildAmbientLights(isDark),
+            const AmbientLights(),
             state.isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
@@ -275,48 +275,6 @@ class _IbadahHubPageState extends ConsumerState<IbadahHubPage> {
                   ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAmbientLights(bool isDark) {
-    if (!isDark) return const SizedBox.shrink();
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            left: -150,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x1a0b3b24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -100,
-            right: -100,
-            child: Container(
-              width: 350,
-              height: 350,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x0fbb9e3d),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/theme_provider.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -40,7 +40,7 @@ class SettingsPage extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            _buildAmbientLights(isDark),
+            const AmbientLights(),
             ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -184,32 +184,6 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAmbientLights(bool isDark) {
-    if (!isDark) return const SizedBox.shrink();
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            left: -150,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x1a0b3b24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

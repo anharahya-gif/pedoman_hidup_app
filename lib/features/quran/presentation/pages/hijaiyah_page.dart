@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/audio_player_helper.dart';
@@ -104,132 +105,137 @@ class _HijaiyahPageState extends State<HijaiyahPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Informative Banner
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.accent.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline_rounded, color: AppColors.accent, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Ketuk huruf untuk memutar makhraj suaranya, dan lihat detail penyambungan di bawah.',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        color: isDark ? AppColors.textDarkSecondary : AppColors.textLightSecondary,
-                        height: 1.4,
-                      ),
-                    ),
+          const AmbientLights(),
+          Column(
+            children: [
+              // Informative Banner
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.accent.withOpacity(0.2)),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // 28 Hijaiyah Grid
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.9,
-              ),
-              itemCount: hijaiyahList.length,
-              itemBuilder: (context, index) {
-                final letter = hijaiyahList[index];
-                final isSelected = _selectedLetter?.name == letter.name;
-                final isThisPlaying = _isPlaying && _currentUrl == letter.audioUrl;
-
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedLetter = letter;
-                    });
-                    _playMakhraj(letter);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? (isDark ? AppColors.highlightDark : AppColors.highlightLight)
-                          : (isDark ? AppColors.cardDark : Colors.white),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.accent
-                            : (isDark ? AppColors.borderDark : AppColors.borderLight),
-                        width: isSelected ? 2 : 1,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: AppColors.accent.withOpacity(0.25),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          : [],
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Sound Indicator Icon
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: Icon(
-                            isThisPlaying
-                                ? Icons.volume_up_rounded
-                                : Icons.volume_mute_rounded,
-                            size: 14,
-                            color: isThisPlaying
-                                ? AppColors.accent
-                                : (isDark ? Colors.white30 : Colors.black26),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, color: AppColors.accent, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Ketuk huruf untuk memutar makhraj suaranya, and lihat detail penyambungan di bawah.',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            color: isDark ? AppColors.textDarkSecondary : AppColors.textLightSecondary,
+                            height: 1.4,
                           ),
                         ),
-                        // Letter content
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 28 Hijaiyah Grid
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemCount: hijaiyahList.length,
+                  itemBuilder: (context, index) {
+                    final letter = hijaiyahList[index];
+                    final isSelected = _selectedLetter?.name == letter.name;
+                    final isThisPlaying = _isPlaying && _currentUrl == letter.audioUrl;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedLetter = letter;
+                        });
+                        _playMakhraj(letter);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? (isDark ? AppColors.highlightDark : AppColors.highlightLight)
+                              : (isDark ? AppColors.cardDark : Colors.white),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.accent
+                                : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                            width: isSelected ? 2 : 1,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.accent.withOpacity(0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  )
+                                ]
+                              : [],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Text(
-                              letter.arabic,
-                              style: AppTheme.arabicStyle(fontSize: 30, color: AppColors.accent).copyWith(
-                                height: 1.1,
+                            // Sound Indicator Icon
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Icon(
+                                isThisPlaying
+                                    ? Icons.volume_up_rounded
+                                    : Icons.volume_mute_rounded,
+                                size: 14,
+                                color: isThisPlaying
+                                    ? AppColors.accent
+                                    : (isDark ? Colors.white30 : Colors.black26),
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              letter.name,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : AppColors.textLightPrimary,
-                              ),
+                            // Letter content
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  letter.arabic,
+                                  style: AppTheme.arabicStyle(fontSize: 30, color: AppColors.accent).copyWith(
+                                    height: 1.1,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  letter.name,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : AppColors.textLightPrimary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+                      ),
+                    );
+                  },
+                ),
+              ),
 
-          // Detail Panel at Bottom
-          if (_selectedLetter != null) _buildDetailPanel(isDark),
+              // Detail Panel at Bottom
+              if (_selectedLetter != null) _buildDetailPanel(isDark),
+            ],
+          ),
         ],
       ),
     );
