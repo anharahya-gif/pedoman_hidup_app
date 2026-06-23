@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/providers.dart';
 import '../../../../core/database/database_helper.dart';
+import '../../../../core/services/sync_service.dart';
 import '../../data/datasources/ibadah_local_data_source.dart';
 import '../../data/models/ibadah_log_model.dart';
 import '../../data/models/prayer_time_model.dart';
@@ -110,6 +111,10 @@ class IbadahController extends StateNotifier<IbadahState> {
         );
         await _localDataSource.insertIbadahLog(newLog);
         log = newLog.toEntity();
+
+        try {
+          await _ref.read(syncServiceProvider).uploadSingleLog(newLog.toSqlMap());
+        } catch (_) {}
       }
 
       // 2. Muat seluruh logs untuk kalkulasi statistik
@@ -221,6 +226,10 @@ class IbadahController extends StateNotifier<IbadahState> {
     final model = IbadahLogModel.fromEntity(updatedLog);
     await _localDataSource.updateIbadahLog(model);
 
+    try {
+      await _ref.read(syncServiceProvider).uploadSingleLog(model.toSqlMap());
+    } catch (_) {}
+
     // Refresh state
     final allLogs = await _localDataSource.getAllIbadahLogs();
     state = state.copyWith(
@@ -241,6 +250,10 @@ class IbadahController extends StateNotifier<IbadahState> {
     final model = IbadahLogModel.fromEntity(updatedLog);
     await _localDataSource.updateIbadahLog(model);
 
+    try {
+      await _ref.read(syncServiceProvider).uploadSingleLog(model.toSqlMap());
+    } catch (_) {}
+
     final allLogs = await _localDataSource.getAllIbadahLogs();
     state = state.copyWith(
       ibadahLog: updatedLog,
@@ -259,6 +272,10 @@ class IbadahController extends StateNotifier<IbadahState> {
     IbadahLog updatedLog = log.copyWith(dhikrCount: newCount, updatedAt: DateTime.now());
     final model = IbadahLogModel.fromEntity(updatedLog);
     await _localDataSource.updateIbadahLog(model);
+
+    try {
+      await _ref.read(syncServiceProvider).uploadSingleLog(model.toSqlMap());
+    } catch (_) {}
 
     final allLogs = await _localDataSource.getAllIbadahLogs();
     state = state.copyWith(
@@ -295,6 +312,10 @@ class IbadahController extends StateNotifier<IbadahState> {
 
     final model = IbadahLogModel.fromEntity(updatedLog);
     await _localDataSource.updateIbadahLog(model);
+
+    try {
+      await _ref.read(syncServiceProvider).uploadSingleLog(model.toSqlMap());
+    } catch (_) {}
 
     final allLogs = await _localDataSource.getAllIbadahLogs();
     state = state.copyWith(

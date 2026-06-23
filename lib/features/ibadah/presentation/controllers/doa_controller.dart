@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/sync_service.dart';
 import '../../data/constants/prayers_after_shalat.dart';
 import 'ibadah_controller.dart';
 
@@ -68,13 +69,21 @@ class DoaController extends StateNotifier<DoaState> {
   Future<void> toggleFavoriteDoa(String id) async {
     final localDS = _ref.read(ibadahLocalDataSourceProvider);
     final currentFavorites = List<String>.from(state.favoriteDoaIds);
+    final syncService = _ref.read(syncServiceProvider);
 
     if (currentFavorites.contains(id)) {
       currentFavorites.remove(id);
       await localDS.removeFavoriteDoa(id);
+      try {
+        await syncService.deleteSingleFavoriteDoa(id);
+      } catch (_) {}
     } else {
+      final savedAt = DateTime.now().toIso8601String();
       currentFavorites.add(id);
       await localDS.addFavoriteDoa(id);
+      try {
+        await syncService.uploadSingleFavoriteDoa(id, savedAt);
+      } catch (_) {}
     }
 
     state = state.copyWith(favoriteDoaIds: currentFavorites);

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/sync_service.dart';
+import '../../../../shared/providers.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -87,7 +90,22 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 28),
 
-                // 2. TENTANG APLIKASI
+                // 2. AKUN & SINKRONISASI CLOUD
+                _buildSectionHeader('Akun & Sinkronisasi Cloud', textPrimary),
+                const SizedBox(height: 12),
+                _buildCloudSyncCard(
+                  context: context,
+                  ref: ref,
+                  cardColor: cardColor,
+                  isDark: isDark,
+                  textPrimary: textPrimary,
+                  textSecondary: textSecondary,
+                  primaryEmerald: primaryEmerald,
+                  accentGold: accentGold,
+                ),
+                const SizedBox(height: 28),
+
+                // 3. TENTANG APLIKASI
                 _buildSectionHeader('Tentang Aplikasi', textPrimary),
                 const SizedBox(height: 12),
                 Container(
@@ -151,7 +169,7 @@ class SettingsPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Pedoman Hidup adalah aplikasi Islami terpadu yang memadukan Al-Quran Digital (dengan audio murattal lengkap per-ayat dan tajwid warna bacaan), pelacak Ibadah Hub harian, dan kumpulan Doa & Dzikir Harian. Aplikasi ini berjalan sepenuhnya luring (offline-first) tanpa iklan atau pelacakan cloud demi kekhusyukan ibadah Anda.',
+                        'Pedoman Hidup adalah aplikasi Islami terpadu yang memadukan Al-Quran Digital (dengan audio murattal lengkap per-ayat dan tajwid warna bacaan), pelacak Ibadah Hub harian, dan kumpulan Doa & Dzikir Harian. Aplikasi ini berjalan secara offline-first dengan enkripsi data aman dan mendukung sinkronisasi cadangan data cloud opsional via Google Sign-In.',
                         style: TextStyle(
                           fontSize: 12.5,
                           color: textSecondary,
@@ -219,6 +237,265 @@ class SettingsPage extends ConsumerWidget {
             : const Icon(Icons.circle_outlined, color: Colors.grey),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildCloudSyncCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required Color cardColor,
+    required bool isDark,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color primaryEmerald,
+    required Color accentGold,
+  }) {
+    final userAsync = ref.watch(authStateProvider);
+    final syncStatus = ref.watch(syncStatusProvider);
+    final lastSyncStr = ref.watch(sharedPreferencesProvider).getString('last_sync_time');
+    
+    String lastSyncText = 'Belum pernah disinkronkan';
+    if (lastSyncStr != null) {
+      try {
+        final dt = DateTime.parse(lastSyncStr);
+        lastSyncText = '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      } catch (_) {}
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.05),
+          width: 1,
+        ),
+      ),
+      child: userAsync.when(
+        data: (user) {
+          if (user == null) {
+            // State: Belum Login
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.cloud_off_rounded, color: textSecondary, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Penyimpanan Lokal Aktif',
+                        style: GoogleFonts.outfit(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Data Anda saat ini hanya tersimpan secara lokal di device ini. Masuk dengan akun Google untuk mengaktifkan sinkronisasi otomatis agar data aman saat Anda berganti device.',
+                  style: TextStyle(fontSize: 12.5, color: textSecondary, height: 1.4),
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? const Color(0xff182b20) : const Color(0xffe8f3ee),
+                      foregroundColor: isDark ? accentGold : primaryEmerald,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(
+                          color: isDark ? accentGold.withValues(alpha: 0.4) : primaryEmerald.withValues(alpha: 0.2),
+                          width: 1.2,
+                        ),
+                      ),
+                    ),
+                    onPressed: () async {
+                      try {
+                        await ref.read(authServiceProvider).signInWithGoogle();
+                        // Sinkronisasi otomatis pertama kali setelah login
+                        await ref.read(syncServiceProvider).syncAllData(ref);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Berhasil masuk dan menyinkronkan data dengan Cloud!')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Gagal masuk: $e')),
+                        );
+                      }
+                    },
+                    icon: Image.network(
+                      'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+                      height: 18,
+                      width: 18,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.login_rounded, size: 18),
+                    ),
+                    label: Text(
+                      'Masuk dengan Google',
+                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14.5),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // State: Sudah Login
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: primaryEmerald.withValues(alpha: 0.2),
+                    backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+                    child: user.photoURL == null ? Icon(Icons.person_rounded, color: accentGold) : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.displayName ?? 'Pengguna',
+                          style: GoogleFonts.outfit(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: textPrimary,
+                          ),
+                        ),
+                        Text(
+                          user.email ?? '',
+                          style: TextStyle(fontSize: 12, color: textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: primaryEmerald.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: accentGold.withValues(alpha: 0.3), width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.cloud_done_rounded, color: accentGold, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Aktif',
+                          style: GoogleFonts.outfit(fontSize: 10, color: accentGold, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white10),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Sinkronisasi Terakhir:',
+                    style: TextStyle(fontSize: 12, color: textSecondary),
+                  ),
+                  Text(
+                    lastSyncText,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textPrimary),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryEmerald,
+                        foregroundColor: accentGold,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: accentGold, width: 1),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: syncStatus == SyncStatus.syncing
+                          ? null
+                          : () async {
+                              try {
+                                await ref.read(syncServiceProvider).syncAllData(ref);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Sinkronisasi data sukses!')),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Sinkronisasi gagal: $e')),
+                                );
+                              }
+                            },
+                      icon: syncStatus == SyncStatus.syncing
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(color: accentGold, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync_rounded, size: 16),
+                      label: Text(
+                        syncStatus == SyncStatus.syncing ? 'Menyinkronkan...' : 'Sinkronkan',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.redAccent,
+                      side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    onPressed: () async {
+                      try {
+                        await ref.read(authServiceProvider).signOut();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Berhasil keluar akun.')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Gagal keluar: $e')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.logout_rounded, size: 16),
+                    label: Text(
+                      'Keluar',
+                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Color(0xffd4af37)),
+        ),
+        error: (err, stack) => Text('Terjadi kesalahan memuat status akun: $err'),
       ),
     );
   }

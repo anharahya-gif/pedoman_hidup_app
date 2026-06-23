@@ -48,6 +48,10 @@ dependencies:
   timezone: ^0.9.4
   flutter_timezone: ^3.0.1
   path_provider: ^2.1.2
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  google_sign_in: ^6.1.6
+  cloud_firestore: ^4.13.3
 
 dev_dependencies:
   flutter_test:

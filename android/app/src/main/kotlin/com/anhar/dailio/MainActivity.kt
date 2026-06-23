@@ -1,4 +1,4 @@
-package com.pedomanhidup.pedoman_hidup_app
+package com.anhar.dailio
 
 import io.flutter.embedding.android.FlutterActivity
 

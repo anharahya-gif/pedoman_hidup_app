@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/sync_service.dart';
 import '../../data/datasources/quran_local_datasource.dart';
 import '../../data/datasources/quran_remote_datasource.dart';
 import '../../data/models/surah_model.dart';
@@ -64,8 +65,9 @@ final filteredSurahProvider = Provider<AsyncValue<List<SurahModel>>>((ref) {
 // Bookmark State Notifier
 class BookmarkNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   final QuranRepository _repository;
+  final Ref _ref;
 
-  BookmarkNotifier(this._repository) : super([]) {
+  BookmarkNotifier(this._repository, this._ref) : super([]) {
     loadBookmarks();
   }
 
@@ -85,12 +87,24 @@ class BookmarkNotifier extends StateNotifier<List<Map<String, dynamic>>> {
       final isBookmarked = await _repository.isBookmarked(surahNumber, verseNumber);
       if (isBookmarked) {
         await _repository.deleteBookmark(surahNumber, verseNumber);
+        try {
+          await _ref.read(syncServiceProvider).deleteSingleBookmark(surahNumber, verseNumber);
+        } catch (_) {}
       } else {
+        final createdAt = DateTime.now().toIso8601String();
         await _repository.addBookmark(
           surahNumber: surahNumber,
           surahName: surahName,
           verseNumber: verseNumber,
         );
+        try {
+          await _ref.read(syncServiceProvider).uploadSingleBookmark({
+            'surah_number': surahNumber,
+            'surah_name': surahName,
+            'verse_number': verseNumber,
+            'created_at': createdAt,
+          });
+        } catch (_) {}
       }
       await loadBookmarks();
     } catch (_) {}
@@ -107,14 +121,15 @@ class BookmarkNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 
 final bookmarkProvider = StateNotifierProvider<BookmarkNotifier, List<Map<String, dynamic>>>((ref) {
   final repo = ref.watch(quranRepositoryProvider);
-  return BookmarkNotifier(repo);
+  return BookmarkNotifier(repo, ref);
 });
 
 // Last Read State Notifier
 class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
   final QuranRepository _repository;
+  final Ref _ref;
 
-  LastReadNotifier(this._repository) : super(null) {
+  LastReadNotifier(this._repository, this._ref) : super(null) {
     loadLastRead();
   }
 
@@ -132,6 +147,7 @@ class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
     required String verseTextLatin,
   }) async {
     try {
+      final createdAt = DateTime.now().toIso8601String();
       await _repository.saveLastRead(
         surahNumber: surahNumber,
         surahName: surahName,
@@ -139,11 +155,21 @@ class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
         verseTextLatin: verseTextLatin,
       );
       await loadLastRead();
+
+      try {
+        await _ref.read(syncServiceProvider).uploadLastRead({
+          'surah_number': surahNumber,
+          'surah_name': surahName,
+          'verse_number': verseNumber,
+          'verse_text_latin': verseTextLatin,
+          'created_at': createdAt,
+        });
+      } catch (_) {}
     } catch (_) {}
   }
 }
 
 final lastReadProvider = StateNotifierProvider<LastReadNotifier, Map<String, dynamic>?>((ref) {
   final repo = ref.watch(quranRepositoryProvider);
-  return LastReadNotifier(repo);
+  return LastReadNotifier(repo, ref);
 });
