@@ -9,8 +9,8 @@ class AppColors {
   static const Color accentLight = Color(0xFFDFCA8C);
   
   // Theme Backgrounds
-  static const Color bgLight = Color(0xFFFBFBFA); // Luxurious Alabaster White
-  static const Color bgDark = Color(0xFF090D16); // Imperial Dark Slate
+  static const Color bgLight = Color(0xFFF3F6F4); // Matching Ibadah Hub Light
+  static const Color bgDark = Color(0xFF070C09); // Matching Ibadah Hub Dark
   
   // Surface Card Colors
   static const Color cardLight = Color(0xFFFFFFFF);
