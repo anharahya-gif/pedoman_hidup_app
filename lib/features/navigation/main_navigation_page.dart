@@ -36,35 +36,48 @@ class MainNavigationPage extends ConsumerWidget {
         children: _pages,
       ),
       extendBody: true, // Allows Scaffold body to flow under the notched bar
-      floatingActionButton: Container(
-        height: 64,
-        width: 64,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      floatingActionButton: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutBack,
+        transform: Matrix4.translationValues(0, currentIndex == 2 ? -4 : 0, 0),
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutBack,
+          scale: currentIndex == 2 ? 1.05 : 1.0,
+          child: Container(
+            height: 64,
+            width: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: currentIndex == 2
+                      ? accentGold.withValues(alpha: 0.25)
+                      : Colors.black.withValues(alpha: isDark ? 0.35 : 0.15),
+                  blurRadius: currentIndex == 2 ? 14 : 10,
+                  spreadRadius: currentIndex == 2 ? 2 : 0,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            ref.read(bottomNavIndexProvider.notifier).state = 2; // Beranda (Tengah)
-          },
-          backgroundColor: currentIndex == 2 ? primaryEmerald : (isDark ? const Color(0xff1a221c) : Colors.white),
-          elevation: 0,
-          shape: CircleBorder(
-            side: BorderSide(
-              color: currentIndex == 2 ? accentGold : navBorderColor,
-              width: 2,
+            child: FloatingActionButton(
+              onPressed: () {
+                ref.read(bottomNavIndexProvider.notifier).state = 2; // Beranda (Tengah)
+              },
+              backgroundColor: currentIndex == 2 ? primaryEmerald : (isDark ? const Color(0xff1a221c) : Colors.white),
+              elevation: 0,
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: currentIndex == 2 ? accentGold : navBorderColor,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.home_rounded,
+                size: 28,
+                color: currentIndex == 2 ? accentGold : primaryEmerald,
+              ),
             ),
-          ),
-          child: Icon(
-            Icons.home_rounded,
-            size: 28,
-            color: currentIndex == 2 ? accentGold : primaryEmerald,
           ),
         ),
       ),
@@ -105,7 +118,7 @@ class MainNavigationPage extends ConsumerWidget {
                 ref: ref,
                 index: 1,
                 currentIndex: currentIndex,
-                icon: Icons.explore_rounded, // Compass/mosque style
+                icon: Icons.mosque_rounded, // Mosque icon replacing Compass
                 label: 'Ibadah',
                 isDark: isDark,
                 accentGold: accentGold,
@@ -165,26 +178,45 @@ class MainNavigationPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: isSelected ? accentGold.withValues(alpha: 0.1) : Colors.transparent,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected ? accentGold : inactiveColor,
-                  size: 25,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                transform: Matrix4.translationValues(0, isSelected ? -4 : 0, 0),
+                child: AnimatedScale(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutBack,
+                  scale: isSelected ? 1.15 : 1.0,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: isSelected ? accentGold.withValues(alpha: 0.12) : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isSelected ? accentGold : inactiveColor,
+                      size: 25,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: isSelected ? 5 : 0,
-                height: 5,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                width: isSelected ? 6 : 0,
+                height: 6,
                 decoration: BoxDecoration(
                   color: accentGold,
                   shape: BoxShape.circle,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: accentGold.withValues(alpha: 0.4),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          )
+                        ]
+                      : [],
                 ),
               ),
             ],
