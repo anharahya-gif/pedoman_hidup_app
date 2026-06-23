@@ -65,7 +65,7 @@ class MainNavigationPage extends ConsumerWidget {
               onPressed: () {
                 ref.read(bottomNavIndexProvider.notifier).state = 2; // Beranda (Tengah)
               },
-              backgroundColor: currentIndex == 2 ? primaryEmerald : (isDark ? const Color(0xff1a221c) : Colors.white),
+              backgroundColor: const Color(0xff0a4128),
               elevation: 0,
               shape: CircleBorder(
                 side: BorderSide(
