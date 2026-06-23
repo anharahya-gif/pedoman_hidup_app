@@ -169,37 +169,49 @@ class DashboardPage extends ConsumerWidget {
                   // 1. Salam Greeting Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _getTimeBasedGreeting(),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textSecondary,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _getTimeBasedGreeting(),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: textSecondary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Assalamu\'alaikum,',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: textSecondary,
+                            const SizedBox(height: 2),
+                            Text(
+                              'Assalamu\'alaikum,',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: textSecondary,
+                              ),
                             ),
-                          ),
-                          Text(
-                            displayName,
-                            style: GoogleFonts.outfit(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: textPrimary,
+                            Text(
+                              displayName,
+                              style: GoogleFonts.outfit(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: textPrimary,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              DateFormatter.formatIndonesianDate(DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: textSecondary.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 16),
                       GestureDetector(
                         onTap: () {
                           // Switch to Settings tab
@@ -209,33 +221,32 @@ class DashboardPage extends ConsumerWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: accentGold.withValues(alpha: 0.3),
-                              width: 1.5,
+                              color: accentGold.withValues(alpha: 0.35),
+                              width: 2,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentGold.withValues(alpha: 0.15),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
                           ),
                           child: CircleAvatar(
-                            radius: 20,
+                            radius: 28,
                             backgroundColor: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
                             backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
                             child: photoUrl == null
                                 ? const Icon(
                                     Icons.person_outline_rounded,
                                     color: accentGold,
-                                    size: 20,
+                                    size: 26,
                                   )
                                 : null,
                           ),
                         ),
                       )
                     ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    DateFormatter.formatIndonesianDate(DateTime.now()),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: textSecondary.withValues(alpha: 0.8),
-                    ),
                   ),
                   const SizedBox(height: 24),
 
