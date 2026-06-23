@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../shared/providers.dart';
 import '../dashboard/presentation/pages/dashboard_page.dart';
 import '../quran/presentation/pages/home_page.dart';
@@ -72,10 +73,11 @@ class MainNavigationPage extends ConsumerWidget {
                   width: 2,
                 ),
               ),
-              child: Icon(
-                Icons.home_rounded,
-                size: 28,
-                color: currentIndex == 2 ? accentGold : primaryEmerald,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: SvgPicture.asset(
+                  'assets/images/logo.svg',
+                ),
               ),
             ),
           ),
