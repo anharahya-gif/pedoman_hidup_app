@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
+import '../../../../core/network/api_client.dart';
 import '../../data/datasources/quran_local_datasource.dart';
 import '../../data/datasources/quran_remote_datasource.dart';
 import '../../data/models/surah_model.dart';
