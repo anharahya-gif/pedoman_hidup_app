@@ -5,7 +5,7 @@ const List<PrayerItem> curatedPrayers = [
   PrayerItem(
     id: 'doa_orang_tua',
     title: 'Doa untuk Kedua Orang Tua',
-    arabic: 'رَبِّ اغْفِرْ لِي وَلِوَALIDAYYA WARHAMHUMAA KAMAA RABBAYAANII SHAGHIIRAA',
+    arabic: 'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
     latin: 'Rabbighfir lii waliwaalidayya warhamhumaa kamaa rabbayaanii shaghiiraa',
     translation: 'Ya Tuhanku, ampunilah dosaku dan dosa kedua orang tuaku, serta sayangilah mereka berdua sebagaimana mereka berdua telah mendidik aku pada waktu kecil.',
     reference: 'QS. Al-Isra: 24 (Adaptasi)',
@@ -41,7 +41,7 @@ const List<PrayerItem> curatedPrayers = [
   PrayerItem(
     id: 'doa_memohon_kemudahan',
     title: 'Doa Memohon Kemudahan',
-    arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّA MAA JA\'ALTAHU SAHLAA, WA ANTA TAJ\'ALUL-HAZNA IDZAA SYI\'TA SAHLAA',
+    arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا',
     latin: 'Allaahumma laa sahla illaa maa ja\'altahu sahlaa, wa anta taj\'alul-hazna idzaa syi\'ta sahlaa',
     translation: 'Ya Allah, tidak ada kemudahan kecuali apa yang Engkau jadikan mudah, dan Engkau menjadikan kesedihan/kesulitan itu mudah jika Engkau menghendaki.',
     reference: 'HR. Ibnu Hibban',
@@ -68,7 +68,7 @@ const List<PrayerItem> curatedPrayers = [
   PrayerItem(
     id: 'doa_masuk_masjid',
     title: 'Doa Masuk Masjid',
-    arabic: 'اللَّهُمَّ افْتَحْ لِي أَبْوَABA RAHMATIKA',
+    arabic: 'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',
     latin: 'Allaahummaftah lii abwaaba rahmatik',
     translation: 'Ya Allah, bukakanlah bagiku pintu-pintu rahmat-Mu.',
     reference: 'HR. Muslim',
@@ -140,7 +140,7 @@ const List<PrayerItem> curatedPrayers = [
   PrayerItem(
     id: 'doa_sebelum_makan',
     title: 'Doa Sebelum Makan',
-    arabic: 'اَللَّهُمَّ بَارِكْ لَنَا فِيْمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّAR',
+    arabic: 'اَللَّهُمَّ بَارِكْ لَنَا فِيْمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',
     latin: 'Allaahumma baarik lanaa fiimaa razaqtanaa wa qinaa \'adzaaban-naar',
     translation: 'Ya Allah, berkahilah kami pada apa yang telah Engkau anugerahkan kepada kami dan jagalah kami dari siksa neraka.',
     reference: 'HR. Ibnu Sunni',
@@ -320,7 +320,7 @@ const List<PrayerItem> curatedPrayers = [
   PrayerItem(
     id: 'doa_penyakit_berat',
     title: 'Doa Mohon Perlindungan dari Penyakit Berat',
-    arabic: 'اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ مِنَ الْبَرَصِ وَالْجُنُوْنِ وَالْجُذَAM WA MIN SAYYI-IL-ASQAAM',
+    arabic: 'اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ مِنَ الْبَرَصِ وَالْجُنُوْنِ وَالْجُذَامِ وَمِنْ سَيِّئِ الْأَسْقَامِ',
     latin: 'Allaahumma innii a\'uudzu bika minal-barashi wal-junuuni wal-judzaami wa min sayyi-il-asqaam',
     translation: 'Ya Allah, sesungguhnya aku berlindung kepada-Mu dari penyakit belang (kusta), gila, lepra, dan dari keburukan segala penyakit (yang mengerikan).',
     reference: 'HR. Abu Dawud',
