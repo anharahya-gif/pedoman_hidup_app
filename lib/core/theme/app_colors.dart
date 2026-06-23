@@ -14,11 +14,11 @@ class AppColors {
   
   // Surface Card Colors
   static const Color cardLight = Color(0xFFFFFFFF);
-  static const Color cardDark = Color(0xFF101726); // Glassmorphism Dark
+  static const Color cardDark = Color(0xFF121814); // Matching Ibadah Hub Card Dark
   
   // Borders/Dividers (Thin & Subtle)
   static const Color borderLight = Color(0xFFE5E5E0);
-  static const Color borderDark = Color(0xFF1E293B);
+  static const Color borderDark = Color(0xFF1B241E); // Matching Ibadah Hub Border Dark
   
   // Text Colors
   static const Color textLightPrimary = Color(0xFF111827); // Charcoal
