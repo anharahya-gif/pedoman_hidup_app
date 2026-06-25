@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../../../core/database/database_helper.dart';
 import '../models/ibadah_log_model.dart';
 import '../models/prayer_time_model.dart';
+import '../models/prayer_playlist_model.dart';
 
 /// Data Source lokal untuk mengelola operasi database Ibadah Hub.
 class IbadahLocalDataSource {
@@ -112,6 +113,90 @@ class IbadahLocalDataSource {
       'favorite_doas',
       where: 'doa_id = ?',
       whereArgs: [doaId],
+    );
+  }
+
+  // ─── PRAYER PLAYLISTS ────────────────────────────────────────────────────
+
+  /// Mengambil semua playlist beserta item doa di dalamnya.
+  Future<List<PrayerPlaylistModel>> getPlaylists() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'prayer_playlists',
+      orderBy: 'created_at DESC',
+    );
+
+    final List<PrayerPlaylistModel> playlists = [];
+    for (final map in maps) {
+      final playlistId = map['id'] as String;
+      final List<Map<String, dynamic>> itemMaps = await db.query(
+        'playlist_items',
+        columns: ['doa_id'],
+        where: 'playlist_id = ?',
+        whereArgs: [playlistId],
+      );
+      final doaIds = itemMaps.map((m) => m['doa_id'] as String).toList();
+      playlists.add(PrayerPlaylistModel.fromSqlMap(map, doaIds: doaIds));
+    }
+    return playlists;
+  }
+
+  /// Membuat playlist baru.
+  Future<void> insertPlaylist(PrayerPlaylistModel playlist) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'prayer_playlists',
+      playlist.toSqlMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Memperbarui nama playlist.
+  Future<void> updatePlaylist(String id, String title) async {
+    final db = await _dbHelper.database;
+    await db.update(
+      'prayer_playlists',
+      {'title': title},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Menghapus playlist beserta relasi itemnya.
+  Future<void> deletePlaylist(String id) async {
+    final db = await _dbHelper.database;
+    await db.delete(
+      'playlist_items',
+      where: 'playlist_id = ?',
+      whereArgs: [id],
+    );
+    await db.delete(
+      'prayer_playlists',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Menambahkan doa ke dalam playlist.
+  Future<void> addItemToPlaylist(String playlistId, String doaId) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'playlist_items',
+      {
+        'playlist_id': playlistId,
+        'doa_id': doaId,
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  /// Menghapus doa dari playlist.
+  Future<void> removeItemFromPlaylist(String playlistId, String doaId) async {
+    final db = await _dbHelper.database;
+    await db.delete(
+      'playlist_items',
+      where: 'playlist_id = ? AND doa_id = ?',
+      whereArgs: [playlistId, doaId],
     );
   }
 }

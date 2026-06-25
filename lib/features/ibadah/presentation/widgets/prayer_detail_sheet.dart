@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../domain/entities/prayer_item.dart';
 import '../controllers/doa_controller.dart';
+import 'add_to_playlist_sheet.dart';
 
 class PrayerDetailSheet extends ConsumerStatefulWidget {
   final PrayerItem prayer;
@@ -290,6 +291,20 @@ class _PrayerDetailSheetState extends ConsumerState<PrayerDetailSheet> {
                         iconColor: isFav ? Colors.redAccent : null,
                         label: 'Favorit',
                         onTap: () => controller.toggleFavoriteDoa(widget.prayer.id),
+                      ),
+                      _buildActionButton(
+                        icon: Icons.playlist_add_rounded,
+                        label: 'Playlist',
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                            ),
+                            builder: (context) => AddToPlaylistSheet(prayer: widget.prayer),
+                          );
+                        },
                       ),
                       _buildActionButton(
                         icon: Icons.text_fields_rounded,

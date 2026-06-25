@@ -19,8 +19,12 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathString,
-      version: 1,
+      version: 2,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -89,6 +93,46 @@ class DatabaseHelper {
         saved_at TEXT NOT NULL
       )
     ''');
+
+    // 6. Create prayer_playlists table (Doa Playlist)
+    await db.execute('''
+      CREATE TABLE prayer_playlists (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    // 7. Create playlist_items table (Doa Playlist Items)
+    await db.execute('''
+      CREATE TABLE playlist_items (
+        playlist_id TEXT NOT NULL,
+        doa_id TEXT NOT NULL,
+        PRIMARY KEY (playlist_id, doa_id),
+        FOREIGN KEY (playlist_id) REFERENCES prayer_playlists (id) ON DELETE CASCADE
+      )
+    ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE prayer_playlists (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE playlist_items (
+          playlist_id TEXT NOT NULL,
+          doa_id TEXT NOT NULL,
+          PRIMARY KEY (playlist_id, doa_id),
+          FOREIGN KEY (playlist_id) REFERENCES prayer_playlists (id) ON DELETE CASCADE
+        )
+      ''');
+    }
   }
 
   Future<void> close() async {

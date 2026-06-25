@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/ambient_lights.dart';
 import '../../data/constants/prayers_after_shalat.dart';
 import '../controllers/doa_controller.dart';
+import '../controllers/playlist_controller.dart';
 
 class PrayersAfterShalatPage extends ConsumerStatefulWidget {
   const PrayersAfterShalatPage({super.key});
@@ -31,11 +32,14 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
     const primaryEmerald = Color(0xff0b3b24);
     const accentGold = Color(0xffd4af37);
     final bgColor = isDark ? const Color(0xff070c09) : const Color(0xfff3f6f4);
+    final glassColor = isDark
+        ? const Color(0xff121814).withValues(alpha: 0.8)
+        : Colors.white.withValues(alpha: 0.9);
 
     final textPrimary = isDark ? Colors.white : Colors.black87;
     final textSecondary = isDark ? Colors.white60 : Colors.black54;
 
-    final steps = prayersAfterShalatSteps;
+    final steps = controller.getDhikrSteps();
     final currentStepIndex = state.activeDhikrStepIndex;
     final currentStep = steps[currentStepIndex < steps.length ? currentStepIndex : steps.length - 1];
 
@@ -73,6 +77,8 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
                       children: [
                         Column(
                           children: [
+                            _buildPlaylistDropdown(context, ref, state, isDark, textPrimary, textSecondary, glassColor),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -342,6 +348,83 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.bold,
                 fontSize: 14.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaylistDropdown(
+    BuildContext context,
+    WidgetRef ref,
+    DoaState state,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+    Color glassColor,
+  ) {
+    final playlistState = ref.watch(playlistControllerProvider);
+    final playlists = playlistState.playlists;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: glassColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.playlist_add_check_rounded, color: Color(0xffd4af37)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                value: state.selectedPlaylistId,
+                hint: Text(
+                  'Tambah Playlist Doa Kustom...',
+                  style: GoogleFonts.outfit(
+                    fontSize: 13,
+                    color: textSecondary,
+                  ),
+                ),
+                dropdownColor: isDark ? const Color(0xff121814) : Colors.white,
+                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+                isExpanded: true,
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text(
+                      'Tanpa Playlist Tambahan (Default)',
+                      style: GoogleFonts.outfit(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: textPrimary,
+                      ),
+                    ),
+                  ),
+                  ...playlists.map((playlist) {
+                    return DropdownMenuItem<String?>(
+                      value: playlist.id,
+                      child: Text(
+                        'Playlist: ${playlist.title} (${playlist.doaIds.length} Doa)',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: textPrimary,
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+                onChanged: (String? val) {
+                  ref.read(doaControllerProvider.notifier).setDhikrPlaylistId(val);
+                },
               ),
             ),
           ),

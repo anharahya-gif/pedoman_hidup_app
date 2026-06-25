@@ -2,7 +2,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/sync_service.dart';
 import '../../data/constants/prayers_after_shalat.dart';
+import '../../data/constants/curated_prayers.dart';
 import 'ibadah_controller.dart';
+import 'playlist_controller.dart';
 
 /// State lengkap untuk fitur kumpulan doa dan dzikir setelah shalat.
 class DoaState {
@@ -13,6 +15,7 @@ class DoaState {
   final int activeDhikrCount;
   final bool isDhikrCompleted;
   final bool isLoading;
+  final String? selectedPlaylistId;
 
   DoaState({
     this.favoriteDoaIds = const [],
@@ -22,6 +25,7 @@ class DoaState {
     this.activeDhikrCount = 0,
     this.isDhikrCompleted = false,
     this.isLoading = false,
+    this.selectedPlaylistId,
   });
 
   DoaState copyWith({
@@ -32,6 +36,7 @@ class DoaState {
     int? activeDhikrCount,
     bool? isDhikrCompleted,
     bool? isLoading,
+    String? selectedPlaylistId,
   }) {
     return DoaState(
       favoriteDoaIds: favoriteDoaIds ?? this.favoriteDoaIds,
@@ -41,6 +46,7 @@ class DoaState {
       activeDhikrCount: activeDhikrCount ?? this.activeDhikrCount,
       isDhikrCompleted: isDhikrCompleted ?? this.isDhikrCompleted,
       isLoading: isLoading ?? this.isLoading,
+      selectedPlaylistId: selectedPlaylistId ?? this.selectedPlaylistId,
     );
   }
 }
@@ -108,9 +114,54 @@ class DoaController extends StateNotifier<DoaState> {
     );
   }
 
+  /// Mengatur playlist doa kustom untuk disisipkan dalam dzikir.
+  void setDhikrPlaylistId(String? id) {
+    state = DoaState(
+      favoriteDoaIds: state.favoriteDoaIds,
+      searchQuery: state.searchQuery,
+      selectedCategory: state.selectedCategory,
+      activeDhikrStepIndex: 0,
+      activeDhikrCount: 0,
+      isDhikrCompleted: false,
+      isLoading: state.isLoading,
+      selectedPlaylistId: id,
+    );
+  }
+
+  /// Mendapatkan seluruh langkah dzikir (default + playlist doa tambahan).
+  List<DhikrStep> getDhikrSteps() {
+    final baseSteps = prayersAfterShalatSteps;
+    final playlistId = state.selectedPlaylistId;
+    if (playlistId == null) return baseSteps;
+
+    final playlists = _ref.read(playlistControllerProvider).playlists;
+    final index = playlists.indexWhere((p) => p.id == playlistId);
+    if (index == -1) return baseSteps;
+
+    final playlist = playlists[index];
+    final List<DhikrStep> dynamicSteps = List.from(baseSteps);
+
+    int stepNum = baseSteps.length + 1;
+    for (final doaId in playlist.doaIds) {
+      final idx = curatedPrayers.indexWhere((p) => p.id == doaId);
+      if (idx != -1) {
+        final prayer = curatedPrayers[idx];
+        dynamicSteps.add(DhikrStep(
+          stepNumber: stepNum++,
+          title: prayer.title,
+          arabic: prayer.arabic,
+          latin: prayer.latin,
+          translation: prayer.translation,
+          targetCount: 1,
+        ));
+      }
+    }
+    return dynamicSteps;
+  }
+
   /// Melewati ke langkah berikutnya secara manual.
   void skipToNextStep() {
-    final steps = prayersAfterShalatSteps;
+    final steps = getDhikrSteps();
     if (state.activeDhikrStepIndex < steps.length - 1) {
       state = state.copyWith(
         activeDhikrStepIndex: state.activeDhikrStepIndex + 1,
@@ -125,7 +176,7 @@ class DoaController extends StateNotifier<DoaState> {
   Future<void> incrementDhikr() async {
     if (state.isDhikrCompleted) return;
 
-    final steps = prayersAfterShalatSteps;
+    final steps = getDhikrSteps();
     final currentStep = steps[state.activeDhikrStepIndex];
     final nextCount = state.activeDhikrCount + 1;
 

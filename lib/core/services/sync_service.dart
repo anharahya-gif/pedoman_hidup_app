@@ -51,6 +51,8 @@ class SyncService {
       await _syncLastRead(db, uid);
       await _syncIbadahLogs(db, uid);
       await _syncFavoriteDoas(db, uid);
+      await _syncPlaylists(db, uid);
+      await _syncPlaylistItems(db, uid);
 
       // Simpan waktu sinkronisasi terakhir
       await _sharedPrefs.setString('last_sync_time', DateTime.now().toIso8601String());
@@ -316,5 +318,105 @@ class SyncService {
     final uid = _uid;
     if (uid == null) return;
     await _firestore.collection('users').doc(uid).collection('favorite_doas').doc(doaId).delete();
+  }
+
+  /// Sinkronkan playlists
+  Future<void> _syncPlaylists(Database db, String uid) async {
+    final playlistsRef = _firestore.collection('users').doc(uid).collection('playlists');
+    final cloudSnap = await playlistsRef.get();
+    final cloudPlaylists = {for (var doc in cloudSnap.docs) doc.id: doc.data()};
+
+    final localPlaylistsList = await db.query('prayer_playlists');
+    final localPlaylists = {for (var row in localPlaylistsList) row['id'] as String: row};
+
+    // Upload local -> Cloud
+    for (var id in localPlaylists.keys) {
+      if (!cloudPlaylists.containsKey(id)) {
+        await playlistsRef.doc(id).set(localPlaylists[id]!);
+      }
+    }
+
+    // Download cloud -> Local
+    for (var id in cloudPlaylists.keys) {
+      if (!localPlaylists.containsKey(id)) {
+        await db.insert('prayer_playlists', cloudPlaylists[id]!, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    }
+  }
+
+  /// Sinkronkan playlist items
+  Future<void> _syncPlaylistItems(Database db, String uid) async {
+    final itemsRef = _firestore.collection('users').doc(uid).collection('playlist_items');
+    final cloudSnap = await itemsRef.get();
+    final cloudItems = {for (var doc in cloudSnap.docs) doc.id: doc.data()};
+
+    final localItemsList = await db.query('playlist_items');
+    final localItems = {for (var row in localItemsList) '${row['playlist_id']}_${row['doa_id']}': row};
+
+    // Upload local -> Cloud
+    for (var key in localItems.keys) {
+      if (!cloudItems.containsKey(key)) {
+        final row = localItems[key]!;
+        await itemsRef.doc(key).set({
+          'playlist_id': row['playlist_id'],
+          'doa_id': row['doa_id'],
+        });
+      }
+    }
+
+    // Download cloud -> Local
+    for (var key in cloudItems.keys) {
+      if (!localItems.containsKey(key)) {
+        final data = cloudItems[key]!;
+        await db.insert('playlist_items', {
+          'playlist_id': data['playlist_id'],
+          'doa_id': data['doa_id'],
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    }
+  }
+
+  Future<void> uploadPlaylist(String playlistId, String title, String createdAt) async {
+    final uid = _uid;
+    if (uid == null) return;
+    await _firestore.collection('users').doc(uid).collection('playlists').doc(playlistId).set({
+      'id': playlistId,
+      'title': title,
+      'created_at': createdAt,
+    });
+  }
+
+  Future<void> deletePlaylistCloud(String playlistId) async {
+    final uid = _uid;
+    if (uid == null) return;
+    await _firestore.collection('users').doc(uid).collection('playlists').doc(playlistId).delete();
+    
+    // Delete all cloud items for this playlist
+    final itemsSnap = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('playlist_items')
+        .where('playlist_id', isEqualTo: playlistId)
+        .get();
+    for (var doc in itemsSnap.docs) {
+      await doc.reference.delete();
+    }
+  }
+
+  Future<void> addPlaylistItemCloud(String playlistId, String doaId) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final key = '${playlistId}_$doaId';
+    await _firestore.collection('users').doc(uid).collection('playlist_items').doc(key).set({
+      'playlist_id': playlistId,
+      'doa_id': doaId,
+    });
+  }
+
+  Future<void> removePlaylistItemCloud(String playlistId, String doaId) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final key = '${playlistId}_$doaId';
+    await _firestore.collection('users').doc(uid).collection('playlist_items').doc(key).delete();
   }
 }
