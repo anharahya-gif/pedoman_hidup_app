@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/services/sync_service.dart';
+import '../../../ibadah/presentation/controllers/ibadah_controller.dart';
 import '../../data/datasources/quran_local_datasource.dart';
 import '../../data/datasources/quran_remote_datasource.dart';
 import '../../data/models/surah_model.dart';
@@ -124,6 +125,52 @@ final bookmarkProvider = StateNotifierProvider<BookmarkNotifier, List<Map<String
   return BookmarkNotifier(repo, ref);
 });
 
+// Mushaf Madinah Page mapping arrays
+const List<int> _surahStartPages = [
+  1, 2, 50, 77, 106, 128, 151, 177, 187, 208, // 1-10
+  221, 235, 249, 255, 262, 267, 282, 293, 305, 312, // 11-20
+  322, 332, 342, 350, 359, 367, 377, 385, 396, 404, // 21-30
+  411, 415, 418, 428, 434, 440, 446, 453, 458, 467, // 31-40
+  477, 483, 489, 496, 499, 502, 507, 511, 515, 518, // 41-50
+  520, 526, 528, 531, 534, 537, 542, 545, 549, 551, // 51-60
+  553, 554, 556, 558, 560, 562, 564, 566, 568, 570, // 61-70
+  572, 574, 575, 577, 578, 580, 582, 583, 585, 587, // 71-80
+  589, 590, 591, 592, 593, 594, 595, 596, 597, 597, // 81-90
+  598, 599, 600, 601, 601, 602, 602, 603, 603, 603, // 91-100
+  604, 604, 604, 604, 604, 604, 604, 604, 604, 604, // 101-110
+  604, 604, 604, 604 // 111-114
+];
+
+const List<int> _surahTotalVerses = [
+  7, 286, 200, 176, 120, 165, 206, 75, 129, 109, // 1-10
+  123, 111, 43, 52, 99, 128, 111, 110, 98, 135, // 11-20
+  112, 78, 118, 64, 77, 227, 93, 88, 69, 60, // 21-30
+  34, 30, 73, 54, 45, 83, 182, 88, 75, 85, // 31-40
+  54, 53, 89, 59, 37, 35, 38, 29, 18, 45, // 41-50
+  60, 49, 62, 55, 78, 96, 29, 22, 24, 13, // 51-60
+  14, 11, 11, 18, 12, 12, 30, 52, 52, 44, // 61-70
+  28, 28, 20, 56, 40, 31, 50, 40, 46, 29, // 71-80
+  19, 36, 25, 22, 17, 19, 26, 30, 20, 15, // 81-90
+  21, 11, 8, 8, 8, 19, 5, 8, 8, 11, // 91-100
+  11, 8, 3, 9, 5, 4, 7, 3, 6, 3, // 101-110
+  5, 4, 5, 6 // 111-114
+];
+
+int _getPageNumber(int surahNum, int verseNum) {
+  if (surahNum < 1 || surahNum > 114) return 1;
+  final startPage = _surahStartPages[surahNum - 1];
+  final nextStartPage = surahNum == 114 ? 605 : _surahStartPages[surahNum];
+  final totalPages = nextStartPage - startPage;
+  final totalVerses = _surahTotalVerses[surahNum - 1];
+
+  if (totalPages <= 1) return startPage;
+
+  final offset = ((verseNum - 1) / totalVerses) * totalPages;
+  final page = startPage + offset.floor();
+
+  return page.clamp(startPage, nextStartPage - 1);
+}
+
 // Last Read State Notifier
 class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
   final QuranRepository _repository;
@@ -147,6 +194,8 @@ class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
     required String verseTextLatin,
   }) async {
     try {
+      final oldLastRead = await _repository.getLastRead();
+
       final createdAt = DateTime.now().toIso8601String();
       await _repository.saveLastRead(
         surahNumber: surahNumber,
@@ -155,6 +204,23 @@ class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
         verseTextLatin: verseTextLatin,
       );
       await loadLastRead();
+
+      // Sinkronkan ke Ibadah Log secara otomatis berdasarkan perbedaan halaman yang dibaca
+      if (oldLastRead != null) {
+        final oldSurah = oldLastRead['surah_number'] as int?;
+        final oldVerse = oldLastRead['verse_number'] as int?;
+        if (oldSurah != null && oldVerse != null) {
+          final oldPage = _getPageNumber(oldSurah, oldVerse);
+          final newPage = _getPageNumber(surahNumber, verseNumber);
+          final pagesRead = newPage - oldPage;
+          
+          if (pagesRead > 0) {
+            final ibadahController = _ref.read(ibadahControllerProvider.notifier);
+            final addedPages = pagesRead <= 30 ? pagesRead : 1;
+            await ibadahController.incrementQuranPages(addedPages);
+          }
+        }
+      }
 
       try {
         await _ref.read(syncServiceProvider).uploadLastRead({

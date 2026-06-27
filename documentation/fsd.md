@@ -213,6 +213,7 @@ graph TD
 * **Menu Belajar Hijaiyah**: Berisi daftar huruf Hijaiyah lengkap dengan cara pelafalan, penulisan, dan audio panduan suara makhorijul huruf.
 * **Hukum Tajwid**: Pembelajaran interaktif 12 hukum tajwid (seperti Ikhfa, Idgham, Qalqalah, dll.) dilengkapi dengan contoh lafal dan audio latihan. Klik pada contoh memicu dialog detail hukum tajwid.
 * **Kuis Quranic**: Evaluasi pemahaman Al-Quran dan hukum tajwid pengguna dengan sistem kuis interaktif berbatas waktu.
+* **Sinkronisasi Otomatis Tilawah (Quran ke Ibadah Hub)**: Ketika pengguna menandai ayat sebagai posisi terakhir dibaca ("Tanda Terakhir Dibaca"), aplikasi secara pintar menghitung estimasi perpindahan halaman menggunakan pemetaan interaktif Mushaf Madinah (604 halaman). Selisih halaman baru dan lama akan langsung ditambahkan ke tracker halaman dibaca harian (`quran_pages`) di Ibadah Hub. Jika perpindahan halaman bersifat melompat sangat jauh (seperti melompati surah > 30 halaman), sistem secara otomatis mencatat 1 halaman dibaca sebagai pemicu awal aktivitas untuk mencegah manipulasi data statistik.
 
 ---
 

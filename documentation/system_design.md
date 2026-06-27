@@ -171,6 +171,7 @@ graph TD
     P2 -->|Simpan Bookmark & Posisi Baca| subdb
     subdb -->|Kueri Surah/Ayat/Tajwid| P2
     P2 -->|Tampilan Al-Quran & Audio| User
+    P2 -->|Kirim Halaman Dibaca (Auto Sync)| P3
 
     %% Flows P3
     User -->|Centang Ibadah & Set Target| P3

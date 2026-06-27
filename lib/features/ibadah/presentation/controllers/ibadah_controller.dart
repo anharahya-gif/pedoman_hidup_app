@@ -261,6 +261,17 @@ class IbadahController extends StateNotifier<IbadahState> {
     );
   }
 
+  /// Meningkatkan jumlah halaman bacaan Quran harian secara inkremental
+  Future<void> incrementQuranPages(int pages) async {
+    if (state.ibadahLog == null) {
+      await loadDataForDate(state.selectedDate, state.city);
+    }
+    final log = state.ibadahLog;
+    if (log != null) {
+      await updateQuranPages(log.quranPages + pages);
+    }
+  }
+
   /// Memperbarui jumlah ketukan dzikir (Tasbih digital) harian
   Future<void> updateDhikrCount(int newCount) async {
     final log = state.ibadahLog;
