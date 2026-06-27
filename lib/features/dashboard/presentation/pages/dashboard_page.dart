@@ -12,6 +12,7 @@ import '../../../ibadah/presentation/pages/prayers_after_shalat_page.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../ayah/presentation/widgets/ayah_of_the_day_card.dart';
 import '../../../ibadah/domain/entities/ibadah_log.dart';
+import '../../../chatbot/presentation/pages/chatbot_page.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -272,6 +273,10 @@ class DashboardPage extends ConsumerWidget {
                     primaryEmerald,
                   ),
                   const SizedBox(height: 28),
+
+                  // 3.5. AI Assistant Card
+                  _buildAiAssistantCard(context, glassColor, textPrimary, textSecondary, accentGold, primaryEmerald),
+                  const SizedBox(height: 24),
 
                   // 4. Quick Actions
                   _buildSectionTitle('Akses Cepat', textPrimary),
@@ -780,5 +785,109 @@ class DashboardPage extends ConsumerWidget {
 
   bool isDark(WidgetRef ref) {
     return ref.context.mounted && Theme.of(ref.context).brightness == Brightness.dark;
+  }
+
+  Widget _buildAiAssistantCard(
+    BuildContext context,
+    Color glassColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color accentGold,
+    Color primaryEmerald,
+  ) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: glassColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: accentGold.withValues(alpha: 0.2),
+          width: 1.2,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatbotPage()),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: primaryEmerald.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.psychology_rounded,
+                    color: accentGold,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Tanya AI Ustadz',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: textPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: accentGold.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'BARU',
+                              style: GoogleFonts.outfit(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: accentGold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Konsultasikan seputar ibadah & kehidupan spiritual harian secara instan.',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11.5,
+                          color: textSecondary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: textSecondary.withValues(alpha: 0.4),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
