@@ -1,7 +1,7 @@
 # 📐 Dokumen Perancangan Sistem (System Design Document)
-## 🌙 Pedoman Hidup App — Versi 1.0.0
+## 🌙 Pedoman Hidup App — Versi 2.0.0
 
-Dokumen ini berisi spesifikasi perancangan sistem formal untuk **Pedoman Hidup App** versi 1.0.0 yang mencakup **Use Case Diagram & Spesifikasi**, **Data Flow Diagram (DFD) Level 0 & 1**, serta **Entity Relationship Diagram (ERD)** detail.
+Dokumen ini berisi spesifikasi perancangan sistem formal untuk **Pedoman Hidup App** versi 2.0.0 yang mencakup **Use Case Diagram & Spesifikasi**, **Data Flow Diagram (DFD) Level 0 & 1**, serta **Entity Relationship Diagram (ERD)** detail.
 
 ---
 
@@ -9,7 +9,7 @@ Dokumen ini berisi spesifikasi perancangan sistem formal untuk **Pedoman Hidup A
 | Parameter | Keterangan |
 | :--- | :--- |
 | **Proyek** | Pedoman Hidup |
-| **Dibuat Berdasarkan** | [FSD v1.0.0](file:///h:/Flutter%20Project/pedoman_hidup_app/documentation/fsd.md) |
+| **Dibuat Berdasarkan** | [FSD v2.0.0](file:///h:/Flutter%20Project/pedoman_hidup_app/documentation/v2.0.0/fsd.md) |
 | **Penyusun** | Pasangan Pemrograman AI (Antigravity) |
 | **Format Diagram** | Mermaid.js (Renders live in Markdown) |
 
@@ -116,7 +116,7 @@ graph LR
     GeminiAI["Gemini AI API"]
 
     %% System
-    App("(Proses 0.0)<br/>Aplikasi Pedoman Hidup v1.0.0")
+    App("(Proses 0.0)<br/>Aplikasi Pedoman Hidup v2.0.0")
 
     %% Data Flows (User)
     User -->|Input Akun Google, Input Key Gemini, Log Ibadah, Prompt Chat, Bookmark| App
@@ -302,7 +302,7 @@ erDiagram
    * Aturan basis data lokal SQLite: `FOREIGN KEY (playlist_id) REFERENCES prayer_playlists (id) ON DELETE CASCADE`. Jika baris folder playlist dihapus oleh pengguna, seluruh item doa yang berelasi di tabel `playlist_items` akan langsung terhapus secara otomatis oleh database engine.
 
 4. **Kemandirian `PRAYER_TIME` (Tanpa Relasi Relasional)**
-   * Tabel `prayer_times` bertindak sebagai tabel *cache offline* independen. Data jadwal shalat ditarik berkala menggunakan API eksternal berdasarkan waktu lokal, dan tidak memerlukan relasi asing (*foreign keys*) ke entitas pengguna agar dapat diakses supercepat tanpa proses *join join* tabel.
+   * Tabel `prayer_times` bertindak as data cache offline independen. Data jadwal shalat ditarik berkala menggunakan API eksternal berdasarkan waktu lokal, dan tidak memerlukan relasi asing (*foreign keys*) ke entitas pengguna agar dapat diakses supercepat tanpa proses *join join* tabel.
 
 ---
 Dokumen rancangan sistem ini valid, konsisten, dan siap digunakan untuk memandu pengembangan skema database, perancangan antarmuka controller (State Management), serta penataan alur sinkronisasi data cloud Firebase.

@@ -1,5 +1,5 @@
 # 📝 Functional Specification Document (FSD)
-## 🌙 Pedoman Hidup App — Versi 1.0.0
+## 🌙 Pedoman Hidup App — Versi 2.0.0
 
 ---
 
@@ -7,9 +7,9 @@
 | Informasi | Detail |
 | :--- | :--- |
 | **Nama Proyek** | Pedoman Hidup |
-| **Versi Dokumen** | 1.0.0 |
-| **Versi Aplikasi** | 1.0.0 |
-| **Tanggal Pembuatan** | 2026-06-26 |
+| **Versi Dokumen** | 2.0.0 |
+| **Versi Aplikasi** | 2.0.0 |
+| **Tanggal Pembuatan** | 2026-06-27 |
 | **Status Dokumen** | Rilis (Approved) |
 | **Target Platform** | Android, iOS |
 | **Framework** | Flutter (Dart SDK) |
@@ -22,7 +22,7 @@
 **Pedoman Hidup** adalah aplikasi panduan ibadah Islami terpadu dan modern yang dirancang untuk mendukung aktivitas ibadah harian umat Muslim secara offline-first. Aplikasi ini memadukan kemudahan membaca Al-Quran, mencatat tracker ibadah harian, menghafal doa, serta berkonsultasi seputar ibadah sehari-hari menggunakan teknologi kecerdasan buatan (AI) yang sopan dan santun.
 
 ### 1.2 Tujuan Dokumen
-Dokumen Spesifikasi Fungsional (FSD) ini bertujuan untuk mendefinisikan seluruh fungsi, arsitektur data, komponen UI/UX, alur pengguna, serta parameter teknis aplikasi **Pedoman Hidup** versi 1.0.0. Dokumen ini menjadi acuan utama bagi pengembang, penguji (QA), desainer, dan pemangku kepentingan.
+Dokumen Spesifikasi Fungsional (FSD) ini bertujuan untuk mendefinisikan seluruh fungsi, arsitektur data, komponen UI/UX, alur pengguna, serta parameter teknis aplikasi **Pedoman Hidup** versi 2.0.0. Dokumen ini menjadi acuan utama bagi pengembang, penguji (QA), desainer, dan pemangku kepentingan.
 
 ---
 
@@ -331,4 +331,4 @@ Navigasi bawah menggunakan `BottomAppBar` dengan lengkungan notch yang sangat mu
 | **UAT-009** | Build Produksi (APK Release) | Perintah `flutter build apk --release` berhasil dikompilasi tanpa adanya error lint analyzer maupun kegagalan kompilasi gradle. | Lulus |
 
 ---
-Dokumen FSD ini resmi disahkan untuk dijadikan basis pengembangan dan pengujian operasional aplikasi **Pedoman Hidup** versi 1.0.0.
+Dokumen FSD ini resmi disahkan untuk dijadikan basis pengembangan dan pengujian operasional aplikasi **Pedoman Hidup** versi 2.0.0.
