@@ -182,6 +182,7 @@ graph TD
     User -->|Kelola Playlist Doa| P4
     P4 -->|Simpan Playlist & Doa Favorit| subdb
     subdb -->|Ambil Doa & Playlist| P4
+    P4 -.->|Simpan/Ambil Last Pick Playlist| subcopy
     P4 -->|Tampilan Daftar Doa Kustom| User
 
     %% Flows P5

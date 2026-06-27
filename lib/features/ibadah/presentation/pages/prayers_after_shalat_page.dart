@@ -367,6 +367,9 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
   ) {
     final playlistState = ref.watch(playlistControllerProvider);
     final playlists = playlistState.playlists;
+    final String? currentValue = playlists.any((p) => p.id == state.selectedPlaylistId)
+        ? state.selectedPlaylistId
+        : null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -385,7 +388,7 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String?>(
-                value: state.selectedPlaylistId,
+                value: currentValue,
                 hint: Text(
                   'Tambah Playlist Doa Kustom...',
                   style: GoogleFonts.outfit(

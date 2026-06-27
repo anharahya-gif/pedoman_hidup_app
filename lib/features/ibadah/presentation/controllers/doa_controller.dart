@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/sync_service.dart';
+import '../../../../shared/providers.dart';
 import '../../data/constants/prayers_after_shalat.dart';
 import '../../data/constants/curated_prayers.dart';
 import 'ibadah_controller.dart';
@@ -59,13 +60,21 @@ class DoaController extends StateNotifier<DoaState> {
     _init();
   }
 
-  /// Memuat ID doa yang difavoritkan dari SQLite.
+  /// Memuat ID doa yang difavoritkan & playlist terakhir dari SQLite/Prefs.
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
     try {
       final localDS = _ref.read(ibadahLocalDataSourceProvider);
       final list = await localDS.getFavoriteDoaIds();
-      state = state.copyWith(favoriteDoaIds: list, isLoading: false);
+      
+      final prefs = _ref.read(sharedPreferencesProvider);
+      final lastPlaylistId = prefs.getString('last_picked_dhikr_playlist_id');
+
+      state = state.copyWith(
+        favoriteDoaIds: list,
+        selectedPlaylistId: lastPlaylistId,
+        isLoading: false,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }
@@ -116,6 +125,15 @@ class DoaController extends StateNotifier<DoaState> {
 
   /// Mengatur playlist doa kustom untuk disisipkan dalam dzikir.
   void setDhikrPlaylistId(String? id) {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      if (id == null) {
+        prefs.remove('last_picked_dhikr_playlist_id');
+      } else {
+        prefs.setString('last_picked_dhikr_playlist_id', id);
+      }
+    } catch (_) {}
+
     state = DoaState(
       favoriteDoaIds: state.favoriteDoaIds,
       searchQuery: state.searchQuery,

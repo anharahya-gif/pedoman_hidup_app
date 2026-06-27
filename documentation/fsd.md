@@ -232,7 +232,7 @@ Merupakan panel kendali pencatatan aktivitas spiritual harian pengguna.
 ### 4.4 Kumpulan Doa & Dzikir
 Menyediakan referensi doa-doa pilihan dalam format yang mudah diakses.
 * **Kategori Doa**: Doa dikelompokkan secara terstruktur (Doa Harian, Doa Ibadah, Doa Perlindungan, dll.).
-* **Dzikir Setelah Shalat**: Panduan dzikir lengkap seturut sunnah Nabi SAW setelah menyelesaikan shalat fardhu, lengkap dengan counter tasbih digital langsung di layar.
+* **Dzikir Setelah Shalat**: Panduan dzikir lengkap seturut sunnah Nabi SAW setelah menyelesaikan shalat fardhu, lengkap dengan counter tasbih digital langsung di layar. Pilihan playlist doa kustom tambahan bersifat persisten (*last pick*), secara otomatis disimpan di `SharedPreferences` sehingga pengguna tidak perlu memilih ulang setiap kali memulai sesi dzikir baru.
 * **Fitur Playlist Doa Kustom**:
   * Pengguna dapat membuat folder/playlist doa buatan sendiri (misalnya: "Playlist Pagi Hari", "Doa Musafir").
   * Memasukkan doa pilihan ke dalam satu atau beberapa playlist melalui modal `AddToPlaylistSheet`.
