@@ -150,40 +150,124 @@ class _ChatbotPageState extends ConsumerState<ChatbotPage> {
             color: textPrimary,
           ),
         ),
-        actions: state.apiKey != null
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.refresh_rounded),
-                  tooltip: 'Bersihkan Obrolan',
-                  onPressed: () {
-                    ref.read(chatbotControllerProvider.notifier).clearChatHistory();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Riwayat obrolan dibersihkan')),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.vpn_key_outlined),
-                  tooltip: 'Pengaturan API Key',
-                  onPressed: () => _showChangeKeyDialog(state.apiKey!),
-                ),
-              ]
-            : null,
+        actions: null,
       ),
       body: SafeArea(
         child: Stack(
           children: [
             const AmbientLights(),
-            state.isLoading && state.apiKey == null
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(accentGold),
-                    ),
-                  )
-                : state.apiKey == null
-                    ? _buildOnboardingView(context, isDark, textPrimary, textSecondary, glassColor, primaryEmerald, accentGold)
-                    : _buildChatView(context, state, isDark, textPrimary, textSecondary, glassColor, primaryEmerald, accentGold),
+            _buildUnderDevelopmentView(context, isDark, textPrimary, textSecondary, glassColor, primaryEmerald, accentGold),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnderDevelopmentView(
+    BuildContext context,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+    Color glassColor,
+    Color primaryEmerald,
+    Color accentGold,
+  ) {
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: glassColor,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: primaryEmerald.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: accentGold.withOpacity(0.3), width: 1.5),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Color(0xffd4af37),
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Tanya AI Ustadz',
+                style: GoogleFonts.outfit(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'FITUR DALAM PENGEMBANGAN 🛠️',
+                  style: GoogleFonts.outfit(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xffd4af37),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Kami sedang menyiapkan integrasi mesin kecerdasan buatan terpusat (DeepSeek AI) untuk memberikan jawaban spiritual, fiqih, dan tuntunan ibadah yang lebih mendalam, cepat, dan responsif.\n\nDalam rilis pembaruan berikutnya, fitur ini akan langsung dapat diakses secara gratis oleh seluruh pengguna tanpa perlu memasukkan API Key secara mandiri. Nantikan rilis selanjutnya!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: textSecondary,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                  label: Text(
+                    'Kembali ke Utama',
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryEmerald,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

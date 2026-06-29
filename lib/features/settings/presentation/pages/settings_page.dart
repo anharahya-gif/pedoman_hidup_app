@@ -6,6 +6,8 @@ import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/sync_service.dart';
 import '../../../../shared/providers.dart';
+import '../../../quran/presentation/providers/quran_providers.dart';
+import '../../../quran/presentation/widgets/font_settings_sheet.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -90,7 +92,33 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 28),
 
-                // 2. AKUN & SINKRONISASI CLOUD
+                // 2. PENGATURAN BACAAN SECTION
+                _buildSectionHeader('Pengaturan Bacaan', textPrimary),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.black.withOpacity(0.05),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildFontSettingsOption(
+                        context: context,
+                        ref: ref,
+                        isDark: isDark,
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // 3. AKUN & SINKRONISASI CLOUD
                 _buildSectionHeader('Akun & Sinkronisasi Cloud', textPrimary),
                 const SizedBox(height: 12),
                 _buildCloudSyncCard(
@@ -105,7 +133,7 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 28),
 
-                // 3. TENTANG APLIKASI
+                // 4. TENTANG APLIKASI
                 _buildSectionHeader('Tentang Aplikasi', textPrimary),
                 const SizedBox(height: 12),
                 Container(
@@ -147,7 +175,7 @@ class SettingsPage extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              'Versi 1.0.0',
+                              'Versi 2.0.0',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: textSecondary,
@@ -496,6 +524,59 @@ class SettingsPage extends ConsumerWidget {
           child: CircularProgressIndicator(color: Color(0xffd4af37)),
         ),
         error: (err, stack) => Text('Terjadi kesalahan memuat status akun: $err'),
+      ),
+    );
+  }
+
+  Widget _buildFontSettingsOption({
+    required BuildContext context,
+    required WidgetRef ref,
+    required bool isDark,
+    required Color textPrimary,
+    required Color textSecondary,
+  }) {
+    final fontSettings = ref.watch(quranFontSettingsProvider);
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xff0b3b24).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.format_size_rounded,
+            color: Color(0xffd4af37),
+            size: 22,
+          ),
+        ),
+        title: Text(
+          'Ukuran Font Quran & Tafsir',
+          style: GoogleFonts.outfit(
+            fontSize: 14.5,
+            fontWeight: FontWeight.bold,
+            color: textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          'Arab: ${fontSettings.arabicFontSize.toInt()} px • Terjemahan: ${fontSettings.latinFontSize.toInt()} px',
+          style: TextStyle(
+            fontSize: 12,
+            color: textSecondary,
+          ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const FontSettingsSheet(),
+          );
+        },
       ),
     );
   }
