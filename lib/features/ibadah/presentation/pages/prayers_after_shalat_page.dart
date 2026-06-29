@@ -367,9 +367,10 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
   ) {
     final playlistState = ref.watch(playlistControllerProvider);
     final playlists = playlistState.playlists;
-    final String? currentValue = playlists.any((p) => p.id == state.selectedPlaylistId)
-        ? state.selectedPlaylistId
-        : null;
+    final String currentValue = (state.selectedPlaylistId != null &&
+            playlists.any((p) => p.id == state.selectedPlaylistId))
+        ? state.selectedPlaylistId!
+        : 'default';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -387,21 +388,14 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
           const SizedBox(width: 12),
           Expanded(
             child: DropdownButtonHideUnderline(
-              child: DropdownButton<String?>(
+              child: DropdownButton<String>(
                 value: currentValue,
-                hint: Text(
-                  'Tambah Playlist Doa Kustom...',
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    color: textSecondary,
-                  ),
-                ),
                 dropdownColor: isDark ? const Color(0xff121814) : Colors.white,
                 icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
                 isExpanded: true,
                 items: [
-                  DropdownMenuItem<String?>(
-                    value: null,
+                  DropdownMenuItem<String>(
+                    value: 'default',
                     child: Text(
                       'Tanpa Playlist Tambahan (Default)',
                       style: GoogleFonts.outfit(
@@ -412,7 +406,7 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
                     ),
                   ),
                   ...playlists.map((playlist) {
-                    return DropdownMenuItem<String?>(
+                    return DropdownMenuItem<String>(
                       value: playlist.id,
                       child: Text(
                         'Playlist: ${playlist.title} (${playlist.doaIds.length} Doa)',
@@ -426,7 +420,8 @@ class _PrayersAfterShalatPageState extends ConsumerState<PrayersAfterShalatPage>
                   }),
                 ],
                 onChanged: (String? val) {
-                  ref.read(doaControllerProvider.notifier).setDhikrPlaylistId(val);
+                  final playlistId = val == 'default' ? null : val;
+                  ref.read(doaControllerProvider.notifier).setDhikrPlaylistId(playlistId);
                 },
               ),
             ),
