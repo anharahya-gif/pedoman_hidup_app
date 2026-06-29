@@ -11,6 +11,7 @@ import '../../../../core/utils/audio_player_helper.dart';
 import '../../../../core/utils/tajweed_parser.dart';
 import '../../data/models/ayat_model.dart';
 import '../providers/quran_providers.dart';
+import '../widgets/font_settings_sheet.dart';
 import '../widgets/rub_el_hizb.dart';
 import 'tafsir_page.dart';
 
@@ -75,6 +76,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
   @override
   Widget build(BuildContext context) {
     final detailAsyncValue = ref.watch(surahDetailProvider(widget.surahNumber));
+    final fontSettings = ref.watch(quranFontSettingsProvider);
 
     // Listen to loaded state to scroll to highlight
     ref.listen<AsyncValue<List<AyatModel>>>(surahDetailProvider(widget.surahNumber), (prev, next) {
@@ -97,6 +99,18 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.format_size_rounded, color: AppColors.accent),
+            tooltip: 'Ukuran Huruf',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const FontSettingsSheet(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.chrome_reader_mode_outlined, color: AppColors.accent),
             tooltip: 'Tafsir Surah',
@@ -152,6 +166,8 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                           isHighlighted: isHighlighted,
                           isPlaying: isPlaying,
                           isBookmarked: isBookmarked,
+                          arabicFontSize: fontSettings.arabicFontSize,
+                          latinFontSize: fontSettings.latinFontSize,
                           onPlayPressed: () {
                             _audioHelper.play(verse.preferredAudio);
                           },
@@ -425,6 +441,8 @@ class VerseCard extends StatefulWidget {
   final bool isHighlighted;
   final bool isPlaying;
   final bool isBookmarked;
+  final double arabicFontSize;
+  final double latinFontSize;
   final VoidCallback onPlayPressed;
   final VoidCallback onBookmarkPressed;
   final VoidCallback onSharePressed;
@@ -438,6 +456,8 @@ class VerseCard extends StatefulWidget {
     required this.isHighlighted,
     required this.isPlaying,
     required this.isBookmarked,
+    required this.arabicFontSize,
+    required this.latinFontSize,
     required this.onPlayPressed,
     required this.onBookmarkPressed,
     required this.onSharePressed,
@@ -581,7 +601,7 @@ class _VerseCardState extends State<VerseCard> {
     return TajweedParser.parse(
       widget.verse.teksArab,
       AppTheme.arabicStyle(
-        fontSize: 28,
+        fontSize: widget.arabicFontSize,
         color: isDark ? Colors.white : AppColors.textLightPrimary,
       ),
       isDark,
@@ -675,7 +695,7 @@ class _VerseCardState extends State<VerseCard> {
             Text(
               widget.verse.teksLatin,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
+                fontSize: widget.latinFontSize - 1,
                 fontStyle: FontStyle.italic,
                 color: AppColors.accent,
                 height: 1.4,
@@ -685,7 +705,7 @@ class _VerseCardState extends State<VerseCard> {
             Text(
               widget.verse.teksIndonesia,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
+                fontSize: widget.latinFontSize,
                 color: isDark ? AppColors.textDarkPrimary : AppColors.textLightPrimary,
                 height: 1.5,
               ),

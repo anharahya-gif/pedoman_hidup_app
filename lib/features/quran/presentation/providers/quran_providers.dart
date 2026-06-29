@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/services/sync_service.dart';
+import '../../../../shared/providers.dart';
 import '../../../ibadah/presentation/controllers/ibadah_controller.dart';
 import '../../data/datasources/quran_local_datasource.dart';
 import '../../data/datasources/quran_remote_datasource.dart';
@@ -238,4 +239,67 @@ class LastReadNotifier extends StateNotifier<Map<String, dynamic>?> {
 final lastReadProvider = StateNotifierProvider<LastReadNotifier, Map<String, dynamic>?>((ref) {
   final repo = ref.watch(quranRepositoryProvider);
   return LastReadNotifier(repo, ref);
+});
+
+// --- QURAN FONT SETTINGS ---
+class QuranFontSettings {
+  final double arabicFontSize;
+  final double latinFontSize;
+
+  QuranFontSettings({
+    required this.arabicFontSize,
+    required this.latinFontSize,
+  });
+
+  QuranFontSettings copyWith({
+    double? arabicFontSize,
+    double? latinFontSize,
+  }) {
+    return QuranFontSettings(
+      arabicFontSize: arabicFontSize ?? this.arabicFontSize,
+      latinFontSize: latinFontSize ?? this.latinFontSize,
+    );
+  }
+}
+
+class QuranFontSettingsNotifier extends StateNotifier<QuranFontSettings> {
+  final Ref _ref;
+
+  QuranFontSettingsNotifier(this._ref)
+      : super(QuranFontSettings(arabicFontSize: 28.0, latinFontSize: 14.0)) {
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      final arabicSize = prefs.getDouble('quran_arabic_font_size') ?? 28.0;
+      final latinSize = prefs.getDouble('quran_latin_font_size') ?? 14.0;
+      state = QuranFontSettings(
+        arabicFontSize: arabicSize,
+        latinFontSize: latinSize,
+      );
+    } catch (_) {}
+  }
+
+  Future<void> setArabicFontSize(double size) async {
+    state = state.copyWith(arabicFontSize: size);
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      await prefs.setDouble('quran_arabic_font_size', size);
+    } catch (_) {}
+  }
+
+  Future<void> setLatinFontSize(double size) async {
+    state = state.copyWith(latinFontSize: size);
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      await prefs.setDouble('quran_latin_font_size', size);
+    } catch (_) {}
+  }
+}
+
+final quranFontSettingsProvider =
+    StateNotifierProvider<QuranFontSettingsNotifier, QuranFontSettings>((ref) {
+  return QuranFontSettingsNotifier(ref);
 });

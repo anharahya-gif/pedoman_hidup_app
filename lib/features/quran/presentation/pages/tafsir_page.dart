@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/ambient_lights.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/quran_providers.dart';
+import '../widgets/font_settings_sheet.dart';
 import '../widgets/rub_el_hizb.dart';
 
 class TafsirPage extends ConsumerWidget {
@@ -21,6 +22,7 @@ class TafsirPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tafsirAsyncValue = ref.watch(tafsirProvider(surahNumber));
+    final fontSettings = ref.watch(quranFontSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,6 +33,20 @@ class TafsirPage extends ConsumerWidget {
             letterSpacing: 0.5,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.format_size_rounded, color: AppColors.accent),
+            tooltip: 'Ukuran Huruf',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const FontSettingsSheet(),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -95,7 +111,7 @@ class TafsirPage extends ConsumerWidget {
                           Text(
                             tafsir.teks,
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
+                              fontSize: fontSettings.latinFontSize,
                               height: 1.6,
                               color: isDark ? AppColors.textDarkPrimary : AppColors.textLightPrimary,
                             ),
